@@ -1,0 +1,23 @@
+import { z } from 'zod';
+
+const configSchema = z.object({
+	NEXT_PUBLIC_BASE_URL: z.string().url(),
+	NEXT_PUBLIC_X_API_KEY: z.string().nonempty({ message: 'API key is required' }),
+});
+
+const configProject = configSchema.safeParse({
+	NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+	NEXT_PUBLIC_X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY,
+});
+
+if (!configProject.success) {
+	console.error(
+		'❌ Invalid environment variables:',
+		configProject.error.flatten().fieldErrors
+	);
+	throw new Error('Invalid environment variables');
+}
+
+const config = configProject.data;
+
+export default config;
