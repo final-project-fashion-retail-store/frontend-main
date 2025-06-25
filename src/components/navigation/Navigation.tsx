@@ -92,16 +92,25 @@ const ThemeToggle = dynamic(() => Promise.resolve(ThemeToggleComp), {
 });
 
 const Navigation = () => {
-	const [authUser, isLoggingIn, isSigningUp, isLoggingOut, logout] =
-		useAuthStore(
-			useShallow((state) => [
-				state.authUser,
-				state.isLoggingIn,
-				state.isSigningUp,
-				state.isLoggingOut,
-				state.logout,
-			])
-		);
+	const [
+		authUser,
+		isLoggingIn,
+		isSigningUp,
+		isLoggingOut,
+		isSendingEmail,
+		isResettingPassword,
+		logout,
+	] = useAuthStore(
+		useShallow((state) => [
+			state.authUser,
+			state.isLoggingIn,
+			state.isSigningUp,
+			state.isLoggingOut,
+			state.isSendingEmail,
+			state.isResettingPassword,
+			state.logout,
+		])
+	);
 	const setForm = useGeneralStore((state) => state.setForm);
 	const router = useRouter();
 
@@ -119,11 +128,13 @@ const Navigation = () => {
 
 	return (
 		<div className='hidden lg:flex sticky top-0 left-0 right-0 w-full py-6 flex-col justify-center space-y-4'>
-			{(isLoggingIn || isSigningUp || isLoggingOut) && (
-				<Overlay loading={isLoggingOut} />
-			)}
+			{(isLoggingIn ||
+				isSigningUp ||
+				isLoggingOut ||
+				isSendingEmail ||
+				isResettingPassword) && <Overlay loading={isLoggingOut} />}
 			{/* Nav top */}
-			<div className='flex items-center justify-between'>
+			<div className='flex items-center justify-between border-b py-4'>
 				{/* Search */}
 				<div className='w-72 relative'>
 					<Input
@@ -179,11 +190,7 @@ const Navigation = () => {
 						</div>
 					) : (
 						<div>
-							<DialogForm
-								title='Welcome back'
-								description='Sign in to your PURPLE BEE account'
-								form={<Form />}
-							>
+							<DialogForm form={<Form />}>
 								<Button
 									variant={'ghost'}
 									onClick={() => setForm('login')}
@@ -191,11 +198,7 @@ const Navigation = () => {
 									Login
 								</Button>
 							</DialogForm>
-							<DialogForm
-								title='Create account'
-								description='Join PURPLE BEE and start shopping'
-								form={<Form />}
-							>
+							<DialogForm form={<Form />}>
 								<Button
 									className='ml-2'
 									onClick={() => setForm('signup')}
@@ -207,7 +210,7 @@ const Navigation = () => {
 					)}
 				</div>
 			</div>
-			<div className='w-full flex items-center justify-center'>
+			<div className='w-full flex items-center justify-center border-b-3 py-2 border-primary'>
 				<NavigationMenu viewport={false}>
 					<NavigationMenuList>
 						<NavigationMenuItem>

@@ -39,3 +39,32 @@ export const logout = async () => {
 		if (isAxiosError(err)) throw err;
 	}
 };
+
+export const forgotPassword = async (data: { email: string }) => {
+	try {
+		const res = await axios.post('api/v1/auth/forgot-password', data);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const resetPassword = async (
+	data: {
+		password: string;
+		passwordConfirm: string;
+	},
+	resetPasswordToken: string
+) => {
+	try {
+		const res = await axios.patch(
+			`api/v1/auth/reset-password/${resetPasswordToken}`,
+			data
+		);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};

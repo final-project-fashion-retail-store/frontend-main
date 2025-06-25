@@ -1,5 +1,6 @@
 'use client';
 
+import ForgotPasswordForm from '@/components/form/ForgotPasswordForm';
 import LoginForm from '@/components/form/LoginForm';
 import SignupForm from '@/components/form/SignupForm';
 import useGeneralStore from '@/stores/generalStore';
@@ -10,6 +11,7 @@ const Form = () => {
 		<>
 			{form === 'login' && <LoginForm />}
 			{form === 'signup' && <SignupForm />}
+			{form === 'forgotPassword' && <ForgotPasswordForm />}
 		</>
 	);
 };

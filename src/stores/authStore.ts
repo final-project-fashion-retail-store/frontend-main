@@ -5,7 +5,14 @@ import { io, Socket } from 'socket.io-client';
 import { User, UserDataSend } from '@/types';
 import { setRefreshTokenFunction } from '@/lib/axios';
 import config from '@/config';
-import { getCurrentUser, login, logout, signup } from '@/services/userServices';
+import {
+	forgotPassword,
+	getCurrentUser,
+	login,
+	logout,
+	resetPassword,
+	signup,
+} from '@/services/userServices';
 
 type Stores = {
 	authUser: User | null;
@@ -13,6 +20,8 @@ type Stores = {
 	isLoggingIn: boolean;
 	isSigningUp: boolean;
 	isLoggingOut: boolean;
+	isSendingEmail: boolean;
+	isResettingPassword: boolean;
 	socket: Socket | null;
 
 	checkAuth: () => void;
@@ -24,6 +33,13 @@ type Stores = {
 	) => Promise<{ success: boolean; message?: string }>;
 	logout: () => Promise<{ success: boolean; message?: string }>;
 	refreshAccessToken: () => void;
+	forgotPassword: (data: {
+		email: string;
+	}) => Promise<{ success: boolean; message?: string }>;
+	resetPassword: (
+		data: { password: string; passwordConfirm: string },
+		resetPasswordToken: string
+	) => Promise<{ success: boolean; message?: string }>;
 	connectSocket: () => void;
 	disconnectSocket: () => void;
 };
@@ -53,6 +69,8 @@ const useAuthStore = create<Stores>((set, get) => ({
 	isLoggingIn: false,
 	isSigningUp: false,
 	isLoggingOut: false,
+	isSendingEmail: false,
+	isResettingPassword: false,
 	socket: null,
 
 	async checkAuth() {
@@ -124,6 +142,7 @@ const useAuthStore = create<Stores>((set, get) => ({
 			set({ isLoggingOut: true });
 			await logout();
 			set({ authUser: null });
+			get().disconnectSocket();
 			return { success: true };
 		} catch (err) {
 			if (err instanceof AxiosError) {
@@ -147,6 +166,51 @@ const useAuthStore = create<Stores>((set, get) => ({
 		const res = await refreshToken();
 		if (!res) {
 			throw new Error('Failed to refresh token');
+		}
+	},
+
+	async forgotPassword(email) {
+		try {
+			set({ isSendingEmail: true });
+			await forgotPassword(email);
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to send email',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to send email',
+			};
+		} finally {
+			set({ isSendingEmail: false });
+		}
+	},
+
+	async resetPassword(data, resetPasswordToken) {
+		try {
+			set({ isResettingPassword: true });
+			await resetPassword(data, resetPasswordToken);
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to reset password',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to reset password',
+			};
+		} finally {
+			set({ isResettingPassword: false });
 		}
 	},
 

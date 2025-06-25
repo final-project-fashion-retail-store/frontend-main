@@ -126,7 +126,10 @@ const LoginForm = () => {
 					)}
 				/>
 				<div className='text-end'>
-					<span className='text-sm text-primary cursor-pointer'>
+					<span
+						className='text-sm text-primary cursor-pointer'
+						onClick={() => setForm('forgotPassword')}
+					>
 						Forgot password?
 					</span>
 				</div>
@@ -135,11 +138,7 @@ const LoginForm = () => {
 					size={'lg'}
 					className='w-full'
 				>
-					{isLoggingIn ? (
-						<LoaderCircle className='text-muted-foreground animate-spin' />
-					) : (
-						<>Sign in</>
-					)}
+					{isLoggingIn ? <LoaderCircle className='animate-spin' /> : 'Sign in'}
 				</Button>
 				<div className='relative'>
 					<Separator />

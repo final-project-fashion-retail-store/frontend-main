@@ -263,7 +263,7 @@ const SignupForm = () => {
 						disabled={!isCheckedTerms}
 					>
 						{isSigningUp ? (
-							<LoaderCircle className='text-muted-foreground animate-spin' />
+							<LoaderCircle className='animate-spin' />
 						) : (
 							'Create Account'
 						)}
