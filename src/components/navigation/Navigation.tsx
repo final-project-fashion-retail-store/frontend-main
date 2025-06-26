@@ -35,6 +35,7 @@ import ThemeToggleComp from '@/components/theme-toggle';
 import dynamic from 'next/dynamic';
 import Form from '@/components/form/Form';
 import useGeneralStore from '@/stores/generalStore';
+import { useOAuthHandler } from '@/hooks/useOAuthHandler';
 
 const components: { title: string; href: string; description: string }[] = [
 	{
@@ -111,8 +112,11 @@ const Navigation = () => {
 			state.logout,
 		])
 	);
+
 	const setForm = useGeneralStore((state) => state.setForm);
 	const router = useRouter();
+
+	useOAuthHandler();
 
 	const handleClickLogout = async () => {
 		if (isLoggingOut) return;
@@ -154,7 +158,7 @@ const Navigation = () => {
 						<div className='flex items-center space-x-6'>
 							<DropdownMenu>
 								<DropdownMenuTrigger>
-									<Avatar>
+									<Avatar className='ring ring-muted-foreground cursor-pointer'>
 										<AvatarImage
 											src={authUser.avatar.url}
 											alt='Avatar'

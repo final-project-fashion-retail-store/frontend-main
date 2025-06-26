@@ -17,7 +17,7 @@ import useChatStore from '@/stores/chatStore';
 import { useShallow } from 'zustand/shallow';
 import useAuthStore from '@/stores/authStore';
 import { useEffect } from 'react';
-import ChatInputCustom from '@/components/Chat/ChatInputCustom';
+import ChatInputCustom from '@/components/chat/ChatInputCustom';
 
 export default function ChatSupport() {
 	const [
@@ -47,6 +47,10 @@ export default function ChatSupport() {
 			unsubscribeToMessages();
 		};
 	}, [authUser, getMessages, subscribeToMessages, unsubscribeToMessages]);
+
+	if (!authUser) {
+		return null;
+	}
 
 	return (
 		<ExpandableChat

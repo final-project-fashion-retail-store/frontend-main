@@ -23,6 +23,8 @@ import { useShallow } from 'zustand/shallow';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import useGeneralStore from '@/stores/generalStore';
+import config from '@/config';
+import Link from 'next/link';
 
 const formSchema = z.object({
 	email: z.string().email().nonempty('Email is required'),
@@ -32,12 +34,31 @@ const formSchema = z.object({
 		.nonempty('Password is required'),
 });
 
+const getOauthGoogleUrl = () => {
+	const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+	const options = {
+		redirect_uri: 'http://localhost:4000/api/v1/auth/google/callback',
+		client_id: config.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+		access_type: 'offline',
+		response_type: 'code',
+		prompt: 'consent',
+		scope: [
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/userinfo.email',
+		].join(' '),
+	};
+	const qs = new URLSearchParams(options);
+	return `${rootUrl}?${qs.toString()}`;
+};
+
 const LoginForm = () => {
 	const [isLoggingIn, login] = useAuthStore(
 		useShallow((state) => [state.isLoggingIn, state.login])
 	);
 	const setForm = useGeneralStore((state) => state.setForm);
 	const [showPassword, setShowPassword] = useState(false);
+
+	const oauthURL = getOauthGoogleUrl();
 
 	const router = useRouter();
 	// 1. Define your form.
@@ -151,9 +172,12 @@ const LoginForm = () => {
 					variant='outline'
 					size={'lg'}
 					className='w-full'
+					asChild
 				>
-					<Google className='size-4' />
-					Google
+					<Link href={oauthURL}>
+						<Google className='size-4' />
+						Google
+					</Link>
 				</Button>
 				<p className='text-muted-foreground text-sm text-center'>
 					Don&apos;t have an account?{' '}
