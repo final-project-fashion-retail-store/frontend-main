@@ -27,6 +27,7 @@ import { useShallow } from 'zustand/shallow';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import useGeneralStore from '@/stores/generalStore';
+import getOauthGoogleUrl from '@/lib/getOauthGoogleUrl';
 
 const formSchema = z
 	.object({
@@ -52,6 +53,8 @@ const SignupForm = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [isCheckedTerms, setIsCheckedTerms] = useState(true);
+
+	const oauthURL = getOauthGoogleUrl();
 
 	const router = useRouter();
 	// 1. Define your form.
@@ -280,9 +283,12 @@ const SignupForm = () => {
 						size={'lg'}
 						className='w-full'
 						disabled={!isCheckedTerms}
+						asChild
 					>
-						<Google className='size-4' />
-						Google
+						<Link href={oauthURL}>
+							<Google className='size-4' />
+							Google
+						</Link>
 					</Button>
 					<p className='text-muted-foreground text-sm text-center'>
 						Already have an account?{' '}

@@ -1,12 +1,27 @@
-// import { Button } from '@/components/ui/button';
+import Hero from '@/components/home/hero/Hero';
+import Category from '@/components/home/category/Category';
+import FeaturedBrand from '@/components/home/featuredBrand/FeaturedBrand';
+import BestSelling from '@/components/home/bestSelling/BestSelling';
+import Features from '@/components/home/Features';
 
 const Home = () => {
 	return (
-		<div className='size-full flex items-center justify-center'>
-			{/* <div className='flex flex-col items-center justify-center space-y-4'>
-				<p className='font-black text-2xl'>Hello, This is home page</p>{' '}
-				<Button>Click me</Button>
-			</div> */}
+		<div className='size-full'>
+			<div className='container mx-auto '>
+				{/* Hero Section */}
+				<Hero />
+				{/* Categories Section */}
+				<Category />
+
+				{/* This Week's Brand Spotlight Section */}
+				<FeaturedBrand />
+
+				{/* Best Selling Products Section */}
+				<BestSelling />
+			</div>
+
+			{/* Features Section */}
+			<Features />
 		</div>
 	);
 };

@@ -15,7 +15,7 @@ const MobileNavigation = () => {
 	const [showSearch, setShowSearch] = useState(false);
 
 	return (
-		<div className='hidden max-lg:block sticky top-0 left-0 right-0 border-b'>
+		<div className='hidden max-lg:block sticky top-0 left-0 right-0 border-b z-[9999] bg-background'>
 			<div className='flex items-center justify-between py-4'>
 				<Button
 					variant={'ghost'}

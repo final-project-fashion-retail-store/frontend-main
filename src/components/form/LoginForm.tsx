@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -23,8 +24,7 @@ import { useShallow } from 'zustand/shallow';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import useGeneralStore from '@/stores/generalStore';
-import config from '@/config';
-import Link from 'next/link';
+import getOauthGoogleUrl from '@/lib/getOauthGoogleUrl';
 
 const formSchema = z.object({
 	email: z.string().email().nonempty('Email is required'),
@@ -33,23 +33,6 @@ const formSchema = z.object({
 		.min(6, 'Password must be at least 6 characters long')
 		.nonempty('Password is required'),
 });
-
-const getOauthGoogleUrl = () => {
-	const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
-	const options = {
-		redirect_uri: 'http://localhost:4000/api/v1/auth/google/callback',
-		client_id: config.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-		access_type: 'offline',
-		response_type: 'code',
-		prompt: 'consent',
-		scope: [
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/userinfo.email',
-		].join(' '),
-	};
-	const qs = new URLSearchParams(options);
-	return `${rootUrl}?${qs.toString()}`;
-};
 
 const LoginForm = () => {
 	const [isLoggingIn, login] = useAuthStore(

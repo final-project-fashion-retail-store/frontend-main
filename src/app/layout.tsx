@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import './globals.css';
-import Navigation from '@/components/navigation/Navigation';
 import AuthProvider from '@/components/auth/AuthProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import ChatSupport from '@/components/chat-support';
 import MobileNavigation from '@/components/mobileNavigation/MobileNavigation';
+import Header from '@/components/header/Header';
+import Footer from '@/components/Footer';
 
 const poppins = Poppins({
 	variable: '--font-poppins',
@@ -40,7 +41,7 @@ export default function RootLayout({
 				className={`${poppins.variable} antialiased`}
 				suppressHydrationWarning
 			>
-				<main className='container mx-auto min-h-screen'>
+				<main className='min-h-screen'>
 					<ThemeProvider
 						attribute='class'
 						defaultTheme='system'
@@ -48,10 +49,11 @@ export default function RootLayout({
 						disableTransitionOnChange
 					>
 						<AuthProvider>
-							<Navigation />
+							<Header />
 							<MobileNavigation />
 							<ChatSupport />
 							{children}
+							<Footer />
 						</AuthProvider>
 						<Toaster />
 					</ThemeProvider>
