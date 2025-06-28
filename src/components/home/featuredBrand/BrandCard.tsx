@@ -1,13 +1,9 @@
+import { Brand } from '@/types';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 type Props = {
-	brand: {
-		name: string;
-		logo?: string;
-		description?: string;
-		specialty?: string;
-	};
+	brand: Brand;
 	index: number;
 };
 
@@ -47,7 +43,7 @@ const BrandCard = ({ brand, index }: Props) => {
 					transition={{ duration: 0.3 }}
 				/>
 				<Image
-					src={brand.logo || '/placeholder.svg'}
+					src={brand.logo.url || '/placeholder.svg'}
 					alt={brand.name}
 					width={120}
 					height={80}

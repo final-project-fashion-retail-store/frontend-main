@@ -58,7 +58,7 @@ const Navigation = () => {
 			}));
 		}
 	}, [categories]);
-	console.log('categoryList', categoryList.current);
+
 	return (
 		<NavigationMenu viewport={false}>
 			<NavigationMenuList>

@@ -10,4 +10,6 @@ export type User = {
 		url: string;
 		public_id: string;
 	};
+	authProvider: 'local' | 'google';
+	createdAt: string;
 };

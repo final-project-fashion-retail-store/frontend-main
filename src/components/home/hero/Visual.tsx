@@ -1,58 +1,63 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import useProductStore from '@/stores/productStore';
+import { useShallow } from 'zustand/shallow';
+import { LoaderCircle } from 'lucide-react';
 
-// import { Badge } from '@/components/ui/badge';
-
-const featuredProducts = [
-	{
-		id: 1,
-		name: 'Urban Runner Pro',
-		category: 'Sneakers',
-		price: 129.99,
-		originalPrice: 159.99,
-		image: '/placeholder.svg?height=400&width=400',
-		featured: true,
-		badge: 'Best Seller',
-	},
-	{
-		id: 2,
-		name: 'Classic Denim Jacket',
-		category: 'Shirts',
-		price: 89.99,
-		image: '/placeholder.svg?height=400&width=400',
-		featured: true,
-		badge: 'New Arrival',
-	},
-	{
-		id: 3,
-		name: 'Slim Fit Chinos',
-		category: 'Pants',
-		price: 69.99,
-		image: '/placeholder.svg?height=400&width=400',
-		featured: true,
-		badge: 'Trending',
-	},
-	{
-		id: 4,
-		name: 'Vintage Wash Jeans',
-		category: 'Pants',
-		price: 99.99,
-		image: '/placeholder.svg?height=400&width=400',
-		featured: true,
-		badge: 'Limited',
-	},
-];
+import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 const Visual = () => {
+	const [isGettingProducts, products, getProducts] = useProductStore(
+		useShallow((state) => [
+			state.isGettingProducts,
+			state.products,
+			state.getProducts,
+		])
+	);
 	const [currentSlide, setCurrentSlide] = useState(0);
 
 	useEffect(() => {
+		getProducts(true);
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		if (!products || products.length === 0) return;
+
 		const timer = setInterval(() => {
-			setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
+			setCurrentSlide((prev) => (prev + 1) % products.length);
 		}, 5000);
 		return () => clearInterval(timer);
-	}, []);
+	}, [products]);
+
+	// Show loading skeleton while fetching products
+	if (isGettingProducts || !products || products.length === 0) {
+		return (
+			<motion.div
+				className='relative'
+				initial={{ opacity: 0, scale: 0.8 }}
+				animate={{ opacity: 1, scale: 1 }}
+				transition={{ delay: 0.4, duration: 1 }}
+			>
+				<div className='relative w-full h-[600px] rounded-3xl overflow-hidden bg-muted-foreground flex items-center justify-center'>
+					<LoaderCircle className='w-12 h-12 text-muted animate-spin' />
+				</div>
+
+				{/* Loading skeleton indicators */}
+				<div className='flex justify-center mt-6 gap-2'>
+					{[...Array(3)].map((_, index) => (
+						<div
+							key={index}
+							className='h-3 w-3 rounded-full bg-muted-foreground/50'
+						/>
+					))}
+				</div>
+			</motion.div>
+		);
+	}
 
 	return (
 		<motion.div
@@ -80,36 +85,62 @@ const Visual = () => {
 						exit={{ opacity: 0, scale: 0.9 }}
 						transition={{ duration: 0.8 }}
 					>
-						<Image
-							src='https://res.cloudinary.com/dx2akttki/image/upload/v1749098608/jmniv3aisp4wkj3hlusg.avif'
-							alt={featuredProducts[currentSlide].name}
-							fill
-							sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-							priority
-							className='object-cover'
-						/>
-						<div className='absolute inset-0 bg-gradient-to-t from-black/50 to-transparent' />
-						<motion.div
-							className='absolute bottom-6 left-6 text-white'
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.3 }}
+						<Link
+							href={`/product/${products?.[currentSlide]?.slug || ''}`}
+							className='block w-full h-full cursor-pointer'
 						>
-							{/* <Badge className='mb-2 bg-white/20 text-white border-white/30'>
-								{featuredProducts[currentSlide].badge}
-							</Badge> */}
-							<h3 className='text-2xl font-bold'>
-								{featuredProducts[currentSlide].name}
-							</h3>
-							<p className='text-lg'>${featuredProducts[currentSlide].price}</p>
-						</motion.div>
+							<Image
+								src={products?.[currentSlide]?.images[0]?.url || ''}
+								alt={products?.[currentSlide]?.name || ''}
+								fill
+								sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+								priority
+								className='object-cover'
+							/>
+							<div className='absolute inset-0 bg-gradient-to-t from-black/50 to-transparent' />
+							<motion.div
+								className='absolute bottom-6 left-6 text-white'
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: 0.3 }}
+							>
+								{!products[currentSlide].inStock && (
+									<Badge
+										variant='destructive'
+										className='mb-2 bg-red-600 text-white border-red-600'
+									>
+										Out of Stock
+									</Badge>
+								)}
+								<h3 className='text-2xl font-bold'>
+									{products?.[currentSlide]?.name || ''}
+								</h3>
+								<div className='flex items-center gap-4 font-bold'>
+									<p className='text-2xl'>${products?.[currentSlide]?.salePrice || 0}</p>
+									{products?.[currentSlide]?.price >
+										products?.[currentSlide]?.salePrice && (
+										<>
+											<span className='line-through text-lg text-destructive'>
+												${products?.[currentSlide]?.price || 0}
+											</span>
+											<Badge className='bg-green-600 text-white text-sm'>
+												Save $
+												{(
+													products[currentSlide].price - products[currentSlide].salePrice
+												).toFixed(0)}
+											</Badge>
+										</>
+									)}
+								</div>
+							</motion.div>
+						</Link>
 					</motion.div>
 				</AnimatePresence>
 			</motion.div>
 
 			{/* Slide indicators */}
 			<div className='flex justify-center mt-6 gap-2'>
-				{featuredProducts.map((_, index) => (
+				{products?.map((_, index) => (
 					<motion.button
 						key={index}
 						onClick={() => setCurrentSlide(index)}

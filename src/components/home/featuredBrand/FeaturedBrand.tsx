@@ -3,47 +3,11 @@
 import { motion, useInView } from 'framer-motion';
 
 import { Badge } from '@/components/ui/badge';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import BrandCard from '@/components/home/featuredBrand/BrandCard';
-
-const trendingBrands = [
-	{
-		name: 'Nike',
-		logo: '/placeholder.svg?height=80&width=120&text=NIKE',
-		description: 'Just Do It',
-		specialty: 'Athletic Wear',
-	},
-	{
-		name: 'Adidas',
-		logo: '/placeholder.svg?height=80&width=120&text=ADIDAS',
-		description: '3 Stripes',
-		specialty: 'Sports Fashion',
-	},
-	{
-		name: 'Puma',
-		logo: '/placeholder.svg?height=80&width=120&text=PUMA',
-		description: 'Forever Faster',
-		specialty: 'Performance',
-	},
-	{
-		name: 'Vans',
-		logo: '/placeholder.svg?height=80&width=120&text=VANS',
-		description: 'Off The Wall',
-		specialty: 'Skate Culture',
-	},
-	{
-		name: 'Converse',
-		logo: '/placeholder.svg?height=80&width=120&text=CONVERSE',
-		description: 'All Star',
-		specialty: 'Classic Style',
-	},
-	{
-		name: 'New Balance',
-		logo: '/placeholder.svg?height=80&width=120&text=NEW BALANCE',
-		description: 'Endorsed by No One',
-		specialty: 'Comfort Tech',
-	},
-];
+import useCommonStore from '@/stores/commonStore';
+import { useShallow } from 'zustand/shallow';
+import BrandCardSkeleton from '@/components/home/featuredBrand/BrandCardSkeleton';
 
 const staggerContainer = {
 	animate: {
@@ -54,9 +18,17 @@ const staggerContainer = {
 };
 
 const FeaturedBrand = () => {
+	const [isGettingBrand, brands, getBrands] = useCommonStore(
+		useShallow((state) => [state.isGettingBrands, state.brands, state.getBrands])
+	);
 	const brandsRef = useRef(null);
-
 	const brandsInView = useInView(brandsRef, { once: true, margin: '-100px' });
+
+	useEffect(() => {
+		getBrands();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	return (
 		<section
 			ref={brandsRef}
@@ -84,18 +56,27 @@ const FeaturedBrand = () => {
 					</p>
 				</motion.div>
 				<motion.div
-					className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center'
+					className='flex flex-row flex-wrap gap-6 items-center justify-center'
 					variants={staggerContainer}
 					initial='initial'
 					animate={brandsInView ? 'animate' : 'initial'}
 				>
-					{trendingBrands.map((brand, index) => (
-						<BrandCard
-							key={brand.name}
-							brand={brand}
-							index={index}
-						/>
-					))}
+					{isGettingBrand &&
+						[...Array(6).keys()].map((index) => (
+							<BrandCardSkeleton
+								key={index}
+								index={index}
+							/>
+						))}
+
+					{!isGettingBrand &&
+						brands?.map((brand, index) => (
+							<BrandCard
+								key={brand.name}
+								brand={brand}
+								index={index}
+							/>
+						))}
 				</motion.div>
 			</div>
 		</section>

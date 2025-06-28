@@ -5,7 +5,6 @@ import AuthProvider from '@/components/auth/AuthProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import ChatSupport from '@/components/chat-support';
-import MobileNavigation from '@/components/mobileNavigation/MobileNavigation';
 import Header from '@/components/header/Header';
 import Footer from '@/components/Footer';
 
@@ -50,7 +49,6 @@ export default function RootLayout({
 					>
 						<AuthProvider>
 							<Header />
-							<MobileNavigation />
 							<ChatSupport />
 							{children}
 							<Footer />

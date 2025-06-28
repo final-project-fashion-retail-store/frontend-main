@@ -27,6 +27,7 @@ import Form from '@/components/form/Form';
 import useGeneralStore from '@/stores/generalStore';
 import { useOAuthHandler } from '@/hooks/useOAuthHandler';
 import Navigation from '@/components/header/navigation/Navigation';
+import MobileNavigation from './mobileNavigation/MobileNavigation';
 
 const dropdownUserMenuItems = [
 	{
@@ -85,8 +86,9 @@ const Header = () => {
 	};
 
 	return (
-		<div className='hidden lg:flex sticky top-0 left-0 right-0 w-full pt-6 flex-col justify-center space-y-4 z-[50] bg-background'>
-			<div className='container mx-auto'>
+		<div className='max-lg:border-b lg:flex sticky top-0 left-0 right-0 w-full lg:pt-6 flex-col justify-center lg:space-y-4 z-[50] bg-background'>
+			<MobileNavigation />
+			<div className='hidden lg:block container mx-auto'>
 				{(isLoggingIn ||
 					isSigningUp ||
 					isLoggingOut ||
@@ -129,6 +131,7 @@ const Header = () => {
 											<DropdownMenuItem
 												key={item.title}
 												asChild
+												className='cursor-pointer'
 											>
 												<Link
 													href={(item.href as string) || ''}
