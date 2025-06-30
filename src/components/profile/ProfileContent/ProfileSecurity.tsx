@@ -15,8 +15,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Eye, EyeOff, LoaderCircle, Lock } from 'lucide-react';
 import { useState } from 'react';
+import { useShallow } from 'zustand/shallow';
+import useAuthStore from '@/stores/authStore';
+import { formatTime } from '@/lib/formatTime';
+import { toast } from 'sonner';
+import Overlay from '@/components/ui/overlay';
 
 const formSchema = z
 	.object({
@@ -31,6 +36,14 @@ const formSchema = z
 	});
 
 const ProfileSecurity = () => {
+	const [authUser, isChangingPassword, changePassword] = useAuthStore(
+		useShallow((state) => [
+			state.authUser,
+			state.isChangingPassword,
+			state.changePassword,
+		])
+	);
+
 	const [showChangePassword, setShowChangePassword] = useState(false);
 	const [showOldPassword, setShowOldPassword] = useState(false);
 	const [showNewPassword, setShowNewPassword] = useState(false);
@@ -48,14 +61,30 @@ const ProfileSecurity = () => {
 	});
 
 	// 2. Define a submit handler.
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		// Do something with the form values.
-		// ✅ This will be type-safe and validated.
-		console.log(values);
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		if (isChangingPassword) return;
+
+		const { oldPassword, newPassword, passwordConfirm } = values;
+
+		const result = await changePassword({
+			oldPassword,
+			newPassword,
+			passwordConfirm,
+		});
+
+		if (result.success) {
+			toast.success('Password changed successfully');
+			form.reset();
+			setShowChangePassword(false);
+		} else {
+			toast.error('Failed to change password');
+			form.setError('root', { message: result.message });
+		}
 	}
 
 	return (
 		<Card>
+			{isChangingPassword && <Overlay />}
 			<CardHeader>
 				<CardTitle className='flex items-center gap-2'>
 					<Lock className='size-5' />
@@ -66,7 +95,11 @@ const ProfileSecurity = () => {
 				<div className='flex items-center justify-between p-4 border rounded-lg'>
 					<div>
 						<h4 className='font-medium'>Password</h4>
-						<p className='text-sm text-muted-foreground'>Last changed 3 months ago</p>
+						{authUser?.passwordChangedAt && (
+							<p className='text-sm text-muted-foreground'>
+								Last changed {formatTime(authUser.passwordChangedAt)}
+							</p>
+						)}
 					</div>
 					<Button
 						variant='outline'
@@ -205,8 +238,22 @@ const ProfileSecurity = () => {
 										</FormItem>
 									)}
 								/>
+								{form.formState.errors.root?.message && (
+									<div className='mb-4'>
+										<FormMessage>{form.formState.errors.root.message}</FormMessage>
+									</div>
+								)}
 								<div className='flex gap-2'>
-									<Button size='sm'>Update Password</Button>
+									<Button
+										size='sm'
+										disabled={isChangingPassword}
+									>
+										{isChangingPassword ? (
+											<LoaderCircle className='animate-spin' />
+										) : (
+											'Update Password'
+										)}
+									</Button>
 									<Button
 										variant='outline'
 										size='sm'

@@ -14,10 +14,16 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, User } from 'lucide-react';
-import Image from 'next/image';
+import { Camera, LoaderCircle, User } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import useAuthStore from '@/stores/authStore';
+import { useEffect, useMemo, useRef } from 'react';
+import useCommonStore from '@/stores/commonStore';
+import { useShallow } from 'zustand/shallow';
+import { toast } from 'sonner';
+import Overlay from '@/components/ui/overlay';
+import ImageCustom from '@/components/custom/image-custom';
+import AlertDialogCustom from '@/components/custom/alert-dialog-custom';
 
 const formSchema = z.object({
 	firstName: z.string().nonempty('First name is required'),
@@ -27,7 +33,31 @@ const formSchema = z.object({
 });
 
 const ProfileInformation = () => {
-	const authUser = useAuthStore((state) => state.authUser);
+	const [authUser, isUpdatingProfile, updateProfile] = useAuthStore(
+		useShallow((state) => [
+			state.authUser,
+			state.isUpdatingProfile,
+			state.updateProfile,
+		])
+	);
+	const [
+		uploadedImages,
+		isUploadingImages,
+		isDestroyingImages,
+		uploadImages,
+		destroyImages,
+	] = useCommonStore(
+		useShallow((state) => [
+			state.uploadedImages,
+			state.isUploadingImages,
+			state.isDestroyingImages,
+			state.uploadImages,
+			state.destroyImages,
+		])
+	);
+
+	const inputFileRef = useRef<HTMLInputElement>(null);
+
 	// 1. Define your form.
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -39,16 +69,86 @@ const ProfileInformation = () => {
 		},
 	});
 
+	// Watch the form values to determine if there are changes
+	const watchedValues = form.watch();
+	const hasChanges = useMemo(() => {
+		if (!authUser) return false;
+
+		return (
+			watchedValues.firstName !== (authUser.firstName || '') ||
+			watchedValues.lastName !== (authUser.lastName || '') ||
+			watchedValues.phoneNumber !== (authUser.phoneNumber || '')
+		);
+	}, [watchedValues, authUser]);
+
+	useEffect(() => {
+		// Update avatar when uploadedImages changes
+		if (uploadedImages && uploadedImages.length > 0) {
+			const newAvatar = {
+				url: uploadedImages[0].secure_url,
+				public_id: uploadedImages[0].public_id || '',
+			};
+			updateProfile({
+				avatar: newAvatar,
+			});
+		}
+	}, [updateProfile, uploadedImages]);
+
 	// 2. Define a submit handler.
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		// Do something with the form values.
-		// ✅ This will be type-safe and validated.
-		console.log(values);
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		if (isUpdatingProfile) return;
+
+		const result = await updateProfile(values);
+
+		if (result.success) {
+			toast.success('Profile updated successfully!');
+		} else {
+			toast.error('Failed to update profile');
+			form.setError('root', { message: result.message });
+		}
 	}
+
+	const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		if (!file) return;
+		if (!file.type.startsWith('image/')) {
+			toast.error('Please select an image file');
+			return;
+		}
+		if (file.size > 5 * 1024 * 1024) {
+			toast.error('File size exceeds 5MB');
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append('images', file);
+
+		// Destroy previous image first
+		if (authUser?.avatar.public_id) {
+			await destroyImages({ publicId: [authUser.avatar.public_id || ''] });
+		}
+
+		await uploadImages(formData);
+	};
+
+	const handleClickRemoveAvatar = async () => {
+		if (!authUser?.avatar.public_id) return;
+		await destroyImages({ publicId: [authUser.avatar.public_id] });
+		await updateProfile({
+			avatar: {
+				url: '',
+				public_id: '',
+			},
+		});
+	};
 
 	if (!authUser) return null;
 	return (
 		<Card>
+			{(isUploadingImages || isUpdatingProfile || isDestroyingImages) && (
+				<Overlay />
+			)}
 			<CardHeader>
 				<CardTitle className='flex items-center gap-2'>
 					<User className='w-5 h-5' />
@@ -57,18 +157,32 @@ const ProfileInformation = () => {
 			</CardHeader>
 			<CardContent className='space-y-6'>
 				{/* Avatar Section */}
+				<input
+					ref={inputFileRef}
+					type='file'
+					accept='image/*'
+					hidden
+					onChange={handleChangeAvatar}
+				/>
 				<div className='flex items-center gap-6'>
 					<div className='relative'>
-						<Image
-							src={authUser.avatar.url}
-							alt='Profile'
-							width={120}
-							height={120}
-							className='rounded-full border-4 border-muted-foreground/20'
-						/>
+						<div className='size-[120px] rounded-full overflow-hidden border-4 border-muted-foreground/20'>
+							<ImageCustom
+								src={authUser.avatar.url}
+								alt='Avatar'
+								width={240}
+								height={240}
+								priority
+								showFallback={!authUser.avatar.url}
+								className={
+									isUploadingImages || isDestroyingImages ? 'animate-pulse' : ''
+								}
+							/>
+						</div>
 						<Button
 							size='icon'
 							className='absolute bottom-0 right-0 rounded-full p-0 bg-purple-600 hover:bg-purple-700'
+							onClick={() => inputFileRef.current?.click()}
 						>
 							<Camera className='size-4' />
 						</Button>
@@ -82,16 +196,24 @@ const ProfileInformation = () => {
 							<Button
 								variant='outline'
 								size='sm'
+								onClick={() => inputFileRef.current?.click()}
 							>
 								Upload New
 							</Button>
-							<Button
-								variant='ghost'
-								size='sm'
-								className='text-destructive hover:bg-destructive/10'
+							<AlertDialogCustom
+								title='Remove Profile Photo'
+								description='Are you sure you want to remove your profile photo?'
+								handler={[handleClickRemoveAvatar]}
+								asChild
 							>
-								Remove
-							</Button>
+								<Button
+									variant='ghost'
+									size='sm'
+									className='text-destructive hover:bg-destructive/10'
+								>
+									Remove
+								</Button>
+							</AlertDialogCustom>
 						</div>
 					</div>
 				</div>
@@ -174,16 +296,27 @@ const ProfileInformation = () => {
 								</FormItem>
 							)}
 						/>
+						{form.formState.errors.root?.message && (
+							<div className='mb-4'>
+								<FormMessage>{form.formState.errors.root.message}</FormMessage>
+							</div>
+						)}
 						<div className='flex gap-3 mt-4'>
 							<Button
 								type='submit'
 								className='bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+								disabled={!hasChanges || isUpdatingProfile}
 							>
-								Submit
+								{isUpdatingProfile ? (
+									<LoaderCircle className='animate-spin' />
+								) : (
+									'Submit'
+								)}
 							</Button>
 							<Button
 								type='button'
 								variant='outline'
+								disabled={!hasChanges || isUpdatingProfile}
 							>
 								Reset
 							</Button>

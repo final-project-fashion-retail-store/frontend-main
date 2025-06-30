@@ -1,8 +1,27 @@
+import AlertDialogCustom from '@/components/custom/alert-dialog-custom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import useAuthStore from '@/stores/authStore';
 import { AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
+import { useShallow } from 'zustand/shallow';
 
 const ProfileDanger = () => {
+	const [deactivateAccount, logout] = useAuthStore(
+		useShallow((state) => [state.deactivateAccount, state.logout])
+	);
+
+	const handleDeactivateAccount = async () => {
+		const result = await deactivateAccount();
+
+		if (result.success) {
+			toast.success('Account deactivated successfully. You will be logged out.');
+			await logout();
+		} else {
+			toast.error('Failed to deactivate account.');
+		}
+	};
+
 	return (
 		<Card className='border-red-200'>
 			<CardHeader>
@@ -20,7 +39,14 @@ const ProfileDanger = () => {
 							certain.
 						</p>
 					</div>
-					<Button variant='destructive'>Deactivate Account</Button>
+					<AlertDialogCustom
+						title='Are you sure you want to deactivate your account?'
+						description='This action cannot be undone.'
+						handler={[handleDeactivateAccount]}
+						asChild
+					>
+						<Button variant='destructive'>Deactivate Account</Button>
+					</AlertDialogCustom>
 				</div>
 			</CardContent>
 		</Card>

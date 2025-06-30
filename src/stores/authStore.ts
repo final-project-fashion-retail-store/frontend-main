@@ -6,12 +6,15 @@ import { User, UserDataSend } from '@/types';
 import { setRefreshTokenFunction } from '@/lib/axios';
 import config from '@/config';
 import {
+	changePassword,
+	deactivateAccount,
 	forgotPassword,
 	getCurrentUser,
 	login,
 	logout,
 	resetPassword,
 	signup,
+	updateUser,
 } from '@/services/userServices';
 
 type Stores = {
@@ -22,6 +25,9 @@ type Stores = {
 	isLoggingOut: boolean;
 	isSendingEmail: boolean;
 	isResettingPassword: boolean;
+	isChangingPassword: boolean;
+	isUpdatingProfile: boolean;
+	hasInitialized: boolean;
 	socket: Socket | null;
 
 	checkAuth: () => void;
@@ -32,7 +38,7 @@ type Stores = {
 		payload: UserDataSend
 	) => Promise<{ success: boolean; message?: string }>;
 	logout: () => Promise<{ success: boolean; message?: string }>;
-	refreshAccessToken: () => void;
+	refreshAccessToken: () => Promise<void>;
 	forgotPassword: (data: {
 		email: string;
 	}) => Promise<{ success: boolean; message?: string }>;
@@ -40,6 +46,15 @@ type Stores = {
 		data: { password: string; passwordConfirm: string },
 		resetPasswordToken: string
 	) => Promise<{ success: boolean; message?: string }>;
+	changePassword: (data: {
+		oldPassword: string;
+		newPassword: string;
+		passwordConfirm: string;
+	}) => Promise<{ success: boolean; message?: string }>;
+	updateProfile: (
+		data: UserDataSend
+	) => Promise<{ success: boolean; message?: string }>;
+	deactivateAccount: () => Promise<{ success: boolean; message?: string }>;
 	connectSocket: () => void;
 	disconnectSocket: () => void;
 };
@@ -47,7 +62,7 @@ type Stores = {
 export const refreshToken = async () => {
 	try {
 		const res = await axios.get(
-			`${config.NEXT_PUBLIC_BASE_URL}auth/refresh-token`,
+			`${config.NEXT_PUBLIC_BASE_URL}/api/v1/auth/refresh-token`,
 			{
 				// Skip interceptor for this request to avoid loops
 				headers: {
@@ -57,9 +72,12 @@ export const refreshToken = async () => {
 				withCredentials: true,
 			}
 		);
+		console.log('✅ Refresh token API call successful');
 		return res;
 	} catch (err) {
+		console.error('❌ Refresh token API call failed:', err);
 		if (err instanceof AxiosError) throw err;
+		throw new Error('Unknown error during token refresh');
 	}
 };
 
@@ -71,6 +89,9 @@ const useAuthStore = create<Stores>((set, get) => ({
 	isLoggingOut: false,
 	isSendingEmail: false,
 	isResettingPassword: false,
+	isChangingPassword: false,
+	isUpdatingProfile: false,
+	hasInitialized: false,
 	socket: null,
 
 	async checkAuth() {
@@ -85,9 +106,10 @@ const useAuthStore = create<Stores>((set, get) => ({
 				console.log(err);
 			}
 		} finally {
-			set({ isCheckingAuth: false });
+			set({ isCheckingAuth: false, hasInitialized: true });
 		}
 	},
+
 	async login(data) {
 		try {
 			set({ isLoggingIn: true });
@@ -163,9 +185,16 @@ const useAuthStore = create<Stores>((set, get) => ({
 	},
 
 	async refreshAccessToken() {
-		const res = await refreshToken();
-		if (!res) {
-			throw new Error('Failed to refresh token');
+		try {
+			console.log('🔄 Refreshing access token...');
+			await refreshToken();
+			console.log('✅ Access token refreshed successfully');
+		} catch (error) {
+			console.error('❌ Failed to refresh access token:', error);
+			// Clear user state when refresh fails
+			set({ authUser: null });
+			get().disconnectSocket();
+			throw error; // Re-throw to let interceptor handle it
 		}
 	},
 
@@ -211,6 +240,51 @@ const useAuthStore = create<Stores>((set, get) => ({
 			};
 		} finally {
 			set({ isResettingPassword: false });
+		}
+	},
+
+	async changePassword(data) {
+		try {
+			set({ isChangingPassword: true });
+			await changePassword(data);
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to change password',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to change password',
+			};
+		} finally {
+			set({ isChangingPassword: false });
+		}
+	},
+
+	async updateProfile(data) {
+		try {
+			set({ isUpdatingProfile: true });
+			const res = await updateUser(data);
+			set({ authUser: res.data.user });
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to update profile',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to update profile',
+			};
+		} finally {
+			set({ isUpdatingProfile: false });
 		}
 	},
 
@@ -273,6 +347,30 @@ const useAuthStore = create<Stores>((set, get) => ({
 			console.log('🔌 Manually disconnecting socket:', socket.id);
 			socket.disconnect();
 			set({ socket: null });
+		}
+	},
+
+	async deactivateAccount() {
+		try {
+			set({ isUpdatingProfile: true });
+			await deactivateAccount();
+			set({ authUser: null });
+			get().disconnectSocket();
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to deactivate account',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to deactivate account',
+			};
+		} finally {
+			set({ isUpdatingProfile: false });
 		}
 	},
 }));

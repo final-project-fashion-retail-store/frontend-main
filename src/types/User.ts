@@ -12,4 +12,5 @@ export type User = {
 	};
 	authProvider: 'local' | 'google';
 	createdAt: string;
+	passwordChangedAt?: string;
 };

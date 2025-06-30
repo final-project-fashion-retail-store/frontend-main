@@ -48,6 +48,10 @@ const BrandCard = ({ brand, index }: Props) => {
 					width={120}
 					height={80}
 					className='max-w-full max-h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300 relative z-10'
+					style={{
+						width: 'auto',
+						height: 'auto',
+					}}
 				/>
 			</motion.div>
 		</motion.div>

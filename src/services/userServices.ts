@@ -68,3 +68,35 @@ export const resetPassword = async (
 		if (isAxiosError(err)) throw err;
 	}
 };
+
+export const changePassword = async (data: {
+	oldPassword: string;
+	newPassword: string;
+	passwordConfirm: string;
+}) => {
+	try {
+		const res = await axios.patch('api/v1/auth/change-password', data);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const updateUser = async (data: UserDataSend) => {
+	try {
+		const res = await axios.patch('api/v1/users/edit-profile', data);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const deactivateAccount = async () => {
+	try {
+		await axios.delete('api/v1/users/deactivate-account');
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};

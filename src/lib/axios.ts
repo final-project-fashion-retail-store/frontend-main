@@ -35,12 +35,12 @@ const processQueue = (error: AxiosError | null) => {
 };
 
 // Create a refreshToken function that can be set from outside
-let refreshTokenFunction: () => void = async () => {
+let refreshTokenFunction: () => Promise<void> = async () => {
 	throw new Error('refreshAccessToken not implemented');
 };
 
 // Export a function to set the refresh token function from stores
-export const setRefreshTokenFunction = (fn: () => void) => {
+export const setRefreshTokenFunction = (fn: () => Promise<void>) => {
 	refreshTokenFunction = fn;
 };
 
@@ -60,7 +60,7 @@ instance.interceptors.response.use(
 		}
 
 		// Handle 401 Unauthorized errors (expired token)
-		if (error.response?.status === 401 && !originalRequest.headers['_retry']) {
+		if (error.response?.status === 401 && !originalRequest.headers?.['_retry']) {
 			if (isRefreshing) {
 				// If already refreshing, add this request to queue
 				return new Promise((resolve, reject) => {
@@ -69,12 +69,17 @@ instance.interceptors.response.use(
 			}
 
 			// Mark as retrying to prevent infinite loops
+			originalRequest.headers = originalRequest.headers || {};
 			originalRequest.headers['_retry'] = true;
 			isRefreshing = true;
 
 			try {
+				console.log('🔄 Attempting to refresh token...');
+
 				// Attempt to refresh the token using the injected function
 				await refreshTokenFunction();
+
+				console.log('✅ Token refreshed successfully');
 
 				// Process any queued requests with new token
 				processQueue(null);
@@ -82,10 +87,12 @@ instance.interceptors.response.use(
 				// Retry the original request with new token
 				return instance(originalRequest);
 			} catch (refreshError) {
+				console.error('❌ Token refresh failed:', refreshError);
+
 				// Token refresh failed
 				processQueue(refreshError as AxiosError);
 
-				// Return the original error
+				// Return the original error, not the refresh error
 				return Promise.reject(error);
 			} finally {
 				isRefreshing = false;

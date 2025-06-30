@@ -92,7 +92,8 @@ const Visual = () => {
 							<Image
 								src={products?.[currentSlide]?.images[0]?.url || ''}
 								alt={products?.[currentSlide]?.name || ''}
-								fill
+								width={1200}
+								height={600}
 								sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
 								priority
 								className='object-cover'
