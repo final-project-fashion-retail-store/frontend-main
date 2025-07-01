@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import useAuthStore from '@/stores/authStore';
 import { MapPin, User } from 'lucide-react';
-import Image from 'next/image';
+import ImageCustom from '@/components/custom/image-custom';
 
 const sidebarItems = [
 	{ id: 'profile', label: 'Profile', icon: User },
@@ -25,13 +25,16 @@ const ProfileSidebar = ({ activeTab, setActiveTab }: Props) => {
 			<Card className='sticky top-8'>
 				<CardHeader className='text-center pb-4'>
 					<div className='relative mx-auto mb-4'>
-						<Image
-							src={authUser.avatar.url}
-							alt='Profile'
-							width={80}
-							height={80}
-							className='rounded-full border-4 border-muted-foreground/20'
-						/>
+						<div className='size-[120px] rounded-full overflow-hidden border-4 border-muted-foreground/20'>
+							<ImageCustom
+								src={authUser.avatar.url}
+								alt='Profile'
+								width={240}
+								height={240}
+								priority
+								showFallback={!authUser.avatar.url}
+							/>
+						</div>
 					</div>
 					<h3 className='font-semibold text-lg'>{authUser.fullName}</h3>
 					<p className='text-sm text-muted-foreground'>

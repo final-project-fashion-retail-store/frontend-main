@@ -1,5 +1,5 @@
 import axios from '@/lib/axios';
-import { UserDataSend } from '@/types';
+import { AddressDataSend, UserDataSend } from '@/types';
 import { isAxiosError } from 'axios';
 
 export const getCurrentUser = async () => {
@@ -96,6 +96,49 @@ export const updateUser = async (data: UserDataSend) => {
 export const deactivateAccount = async () => {
 	try {
 		await axios.delete('api/v1/users/deactivate-account');
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const getAddresses = async () => {
+	try {
+		const res = await axios.get(
+			'api/v1/addresses?fields=-active,-createdAt,-updatedAt&sort=-isDefault'
+		);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const createAddress = async (data: AddressDataSend) => {
+	try {
+		const res = await axios.post('api/v1/addresses', data);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const updateAddress = async (
+	data: AddressDataSend,
+	addressId: string
+) => {
+	try {
+		const res = await axios.patch(`api/v1/addresses/${addressId}`, data);
+
+		return res.data;
+	} catch (err) {
+		if (isAxiosError(err)) throw err;
+	}
+};
+
+export const deleteAddress = async (addressId: string) => {
+	try {
+		await axios.delete(`api/v1/addresses/${addressId}`);
 	} catch (err) {
 		if (isAxiosError(err)) throw err;
 	}

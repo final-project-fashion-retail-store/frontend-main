@@ -2,23 +2,29 @@ import { create } from 'zustand';
 import axios, { AxiosError } from 'axios';
 import { io, Socket } from 'socket.io-client';
 
-import { User, UserDataSend } from '@/types';
+import { Address, AddressDataSend, User, UserDataSend } from '@/types';
 import { setRefreshTokenFunction } from '@/lib/axios';
 import config from '@/config';
 import {
 	changePassword,
+	createAddress,
 	deactivateAccount,
+	deleteAddress,
 	forgotPassword,
+	getAddresses,
 	getCurrentUser,
 	login,
 	logout,
 	resetPassword,
 	signup,
+	updateAddress,
 	updateUser,
 } from '@/services/userServices';
 
 type Stores = {
 	authUser: User | null;
+	addresses: Address[] | null;
+	selectedAddress: Address | null;
 	isCheckingAuth: boolean;
 	isLoggingIn: boolean;
 	isSigningUp: boolean;
@@ -27,6 +33,9 @@ type Stores = {
 	isResettingPassword: boolean;
 	isChangingPassword: boolean;
 	isUpdatingProfile: boolean;
+	isCreatingAddress: boolean;
+	isUpdatingAddress: boolean;
+	isDeletingAddress: boolean;
 	hasInitialized: boolean;
 	socket: Socket | null;
 
@@ -55,6 +64,18 @@ type Stores = {
 		data: UserDataSend
 	) => Promise<{ success: boolean; message?: string }>;
 	deactivateAccount: () => Promise<{ success: boolean; message?: string }>;
+	getAddresses: () => void;
+	createAddress: (
+		data: AddressDataSend
+	) => Promise<{ success: boolean; message?: string }>;
+	updateAddress: (
+		data: AddressDataSend,
+		addressId: string
+	) => Promise<{ success: boolean; message?: string }>;
+	deleteAddress: (
+		addressId: string
+	) => Promise<{ success: boolean; message?: string }>;
+	setSelectedAddress: (address: Address | null) => void;
 	connectSocket: () => void;
 	disconnectSocket: () => void;
 };
@@ -83,6 +104,8 @@ export const refreshToken = async () => {
 
 const useAuthStore = create<Stores>((set, get) => ({
 	authUser: null,
+	addresses: null,
+	selectedAddress: null,
 	isCheckingAuth: false,
 	isLoggingIn: false,
 	isSigningUp: false,
@@ -92,6 +115,9 @@ const useAuthStore = create<Stores>((set, get) => ({
 	isChangingPassword: false,
 	isUpdatingProfile: false,
 	hasInitialized: false,
+	isCreatingAddress: false,
+	isUpdatingAddress: false,
+	isDeletingAddress: false,
 	socket: null,
 
 	async checkAuth() {
@@ -373,6 +399,131 @@ const useAuthStore = create<Stores>((set, get) => ({
 			set({ isUpdatingProfile: false });
 		}
 	},
+
+	async getAddresses() {
+		try {
+			const res = await getAddresses();
+			set({ addresses: res.data.addresses });
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				console.log(err?.response?.data?.message);
+			}
+		}
+	},
+
+	async createAddress(data) {
+		try {
+			set({ isCreatingAddress: true });
+			const res = await createAddress(data);
+			set({ addresses: [res.data.address, ...(get().addresses || [])] });
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to create address',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to create address',
+			};
+		} finally {
+			set({ isCreatingAddress: false });
+		}
+	},
+
+	async updateAddress(data, addressId) {
+		try {
+			set({ isUpdatingAddress: true });
+			const res = await updateAddress(data, addressId);
+
+			let newAddresses = get().addresses || [];
+
+			// Find the previous default address (if it exists and is different from the updated one)
+			const previousDefaultAddress = newAddresses.find(
+				(address) => address.isDefault && address._id !== res.data.address._id
+			);
+
+			// Update the address with the new data
+			newAddresses = newAddresses.map((address) =>
+				address._id === res.data.address._id ? res.data.address : address
+			);
+
+			// If the updated address is now default and there was a previous default
+			if (res.data.address.isDefault && previousDefaultAddress) {
+				// Set the previous default address to not default
+				newAddresses = newAddresses.map((address) =>
+					address._id === previousDefaultAddress._id
+						? { ...address, isDefault: false }
+						: address
+				);
+			}
+
+			// If the updated address is default, move it to the first position
+			if (res.data.address.isDefault) {
+				const updatedAddress = newAddresses.find(
+					(addr) => addr._id === res.data.address._id
+				);
+				const otherAddresses = newAddresses.filter(
+					(addr) => addr._id !== res.data.address._id
+				);
+				newAddresses = updatedAddress
+					? [updatedAddress, ...otherAddresses]
+					: newAddresses;
+			}
+
+			set({
+				addresses: newAddresses,
+				selectedAddress: null,
+			});
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to update address',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to update address',
+			};
+		} finally {
+			set({ isUpdatingAddress: false });
+		}
+	},
+
+	async deleteAddress(addressId) {
+		try {
+			set({ isDeletingAddress: true });
+			await deleteAddress(addressId);
+			set({
+				addresses: get().addresses?.filter((address) => address._id !== addressId),
+				selectedAddress: null,
+			});
+			return { success: true };
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+				return {
+					success: false,
+					message: err.response?.data.message || 'Failed to delete address',
+				};
+			}
+			return {
+				success: false,
+				message: 'Failed to delete address',
+			};
+		} finally {
+			set({ isDeletingAddress: false });
+		}
+	},
+
+	setSelectedAddress: (address) => set({ selectedAddress: address }),
 }));
 
 setRefreshTokenFunction(useAuthStore.getState().refreshAccessToken);

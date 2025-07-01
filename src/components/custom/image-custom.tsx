@@ -35,12 +35,14 @@ const ImageCustom = ({
 					height={height}
 					priority={priority}
 					quality={quality}
-					className={`rounded-full object-cover ${className}`}
+					className={`rounded-full size-full object-cover ${className}`}
 					onError={() => setImageError(true)}
 				/>
 			) : (
 				// Fallback content when image fails or no avatar
-				<div className='flex items-center justify-center w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 text-white text-2xl font-semibold'>
+				<div
+					className={`flex size-full items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-400 text-white text-2xl font-semibold ${className}`}
+				>
 					{fallbackChar || 'FB'}
 				</div>
 			)}

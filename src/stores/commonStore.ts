@@ -4,11 +4,22 @@ import {
 	getCategories,
 	uploadImages,
 } from '@/services/commonServices';
+import {
+	getDistrict,
+	getProvinceCity,
+	getWardCommune,
+} from '@/services/provinceServices';
 import { Brand, Category } from '@/types';
+import { District } from '@/types/District';
+import { Province } from '@/types/Province';
+import { Ward } from '@/types/Ward';
 import { AxiosError } from 'axios';
 import { create } from 'zustand';
 
 type Stores = {
+	provinces: Province[] | null;
+	districts: District[] | null;
+	wards: Ward[] | null;
 	categories: Category[] | null;
 	brands: Brand[] | null;
 	uploadedImages: { public_id: string; secure_url: string }[] | null;
@@ -21,9 +32,15 @@ type Stores = {
 	getBrands: (featuredBrand?: boolean | '') => void;
 	uploadImages: (data: FormData) => void;
 	destroyImages: (data: { publicId: string[] }) => void;
+	getProvinces: () => void;
+	getDistricts: (provinceId: string) => void;
+	getWards: (districtId: string) => void;
 };
 
 const useCommonStore = create<Stores>((set) => ({
+	provinces: null,
+	districts: null,
+	wards: null,
 	categories: null,
 	brands: null,
 	uploadedImages: null,
@@ -90,6 +107,42 @@ const useCommonStore = create<Stores>((set) => ({
 			}
 		} finally {
 			set({ isDestroyingImages: false });
+		}
+	},
+
+	async getProvinces() {
+		try {
+			const res = await getProvinceCity();
+			set({ provinces: res.data });
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log('Error fetching provinces:', err.response?.data.message);
+				console.log(err);
+			}
+		}
+	},
+
+	async getDistricts(provinceId) {
+		try {
+			const res = await getDistrict(provinceId);
+			set({ districts: res.data });
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log('Error fetching districts:', err.response?.data.message);
+				console.log(err);
+			}
+		}
+	},
+
+	async getWards(districtId) {
+		try {
+			const res = await getWardCommune(districtId);
+			set({ wards: res.data });
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log('Error fetching wards:', err.response?.data.message);
+				console.log(err);
+			}
 		}
 	},
 }));

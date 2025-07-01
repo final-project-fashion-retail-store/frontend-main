@@ -12,7 +12,7 @@ const ProfileContainer = () => {
 				activeTab={activeTab}
 				setActiveTab={setActiveTab}
 			/>
-			<ProfileContent />
+			<ProfileContent activeTab={activeTab} />
 		</div>
 	);
 };

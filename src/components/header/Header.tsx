@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Heart, Search, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DialogForm } from '@/components/form';
 import useAuthStore from '@/stores/authStore';
 import Overlay from '@/components/ui/overlay';
@@ -28,6 +27,7 @@ import useGeneralStore from '@/stores/generalStore';
 import { useOAuthHandler } from '@/hooks/useOAuthHandler';
 import Navigation from '@/components/header/navigation/Navigation';
 import MobileNavigation from './mobileNavigation/MobileNavigation';
+import ImageCustom from '@/components/custom/image-custom';
 
 const dropdownUserMenuItems = [
 	{
@@ -88,7 +88,7 @@ const Header = () => {
 	return (
 		<div className='max-lg:border-b lg:flex sticky top-0 left-0 right-0 w-full lg:pt-6 flex-col justify-center lg:space-y-4 z-[50] bg-background'>
 			<MobileNavigation />
-			<div className='hidden lg:block container mx-auto'>
+			<div className='hidden lg:block container mx-auto 2xl:px-6  3xl:px-0'>
 				{(isLoggingIn ||
 					isSigningUp ||
 					isLoggingOut ||
@@ -115,14 +115,15 @@ const Header = () => {
 							<div className='flex items-center space-x-6'>
 								<DropdownMenu>
 									<DropdownMenuTrigger>
-										<Avatar className='ring ring-muted-foreground cursor-pointer'>
-											<AvatarImage
-												src={authUser.avatar.url}
-												alt='Avatar'
-												className='object-cover'
-											/>
-											<AvatarFallback>CN</AvatarFallback>
-										</Avatar>
+										<ImageCustom
+											src={authUser.avatar.url}
+											alt='Avatar'
+											width={40}
+											height={40}
+											showFallback={!authUser.avatar.url}
+											priority
+											className='cursor-pointer size-8! ring ring-muted-foreground'
+										/>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
 										<DropdownMenuLabel>My Account</DropdownMenuLabel>

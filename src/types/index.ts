@@ -1,6 +1,8 @@
 // User
 export type { User } from './User';
 export type { UserDataSend } from './UserDataSend';
+export type { Address } from './Address';
+export type { AddressDataSend } from './AddressDataSend';
 
 // Message
 export type { Message } from './Message';
