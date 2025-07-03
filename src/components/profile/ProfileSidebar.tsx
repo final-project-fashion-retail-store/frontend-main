@@ -21,7 +21,7 @@ const ProfileSidebar = ({ activeTab, setActiveTab }: Props) => {
 
 	if (!authUser) return null;
 	return (
-		<div className='grid-cols-span-1'>
+		<div className='lg:col-span-1'>
 			<Card className='sticky top-8'>
 				<CardHeader className='text-center pb-4'>
 					<div className='relative mx-auto mb-4'>

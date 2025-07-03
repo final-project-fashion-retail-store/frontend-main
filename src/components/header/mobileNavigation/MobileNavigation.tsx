@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 import ThemeToggleComp from '@/components/theme-toggle';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import Menu from '@/components/header/mobileNavigation/Menu';
 
 const ThemeToggle = dynamic(() => Promise.resolve(ThemeToggleComp), {
 	ssr: false,
@@ -17,15 +19,20 @@ const MobileNavigation = () => {
 	return (
 		<div className='hidden max-lg:block'>
 			<div className='flex items-center justify-between py-4'>
-				<Button
-					variant={'ghost'}
-					size={'icon'}
+				<Menu>
+					<Button
+						variant={'ghost'}
+						size={'icon'}
+					>
+						<AlignJustify />
+					</Button>
+				</Menu>
+				<Link
+					href={'/'}
+					className='w-40 h-auto absolute left-1/2 transform -translate-x-1/2'
 				>
-					<AlignJustify />
-				</Button>
-				<span className='w-40 h-auto absolute left-1/2 transform -translate-x-1/2'>
 					<Logo />
-				</span>
+				</Link>
 				<div>
 					<ThemeToggle variant='ghost' />
 					<Button

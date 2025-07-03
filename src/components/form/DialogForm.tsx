@@ -7,7 +7,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import useGeneralStore from '@/stores/generalStore';
+import useCommonStore from '@/stores/commonStore';
 
 type Props = {
 	children: React.ReactNode;
@@ -33,7 +33,7 @@ const formTitles = [
 ];
 
 const DialogForm = ({ children, form }: Props) => {
-	const formType = useGeneralStore((state) => state.form);
+	const formType = useCommonStore((state) => state.form);
 	return (
 		<Dialog>
 			<DialogTrigger asChild>{children}</DialogTrigger>

@@ -63,11 +63,13 @@ const AddressItem = ({ address, setShowAddAddress }: Props) => {
 			className={address.isDefault ? 'border-purple-200 bg-purple-50/30' : ''}
 		>
 			{isDeletingAddress || (isUpdatingAddress && <Overlay loading />)}
-			<CardContent className='p-6'>
+			<CardContent className='p-6 max-sm:p-4'>
 				<div className='flex items-start justify-between'>
 					<div className='flex-1 space-y-2'>
 						<div className='flex items-center gap-2'>
-							<h4 className='font-semibold text-lg'>{address.fullName}</h4>
+							<h4 className='font-semibold text-lg max-sm:text-base'>
+								{address.fullName}
+							</h4>
 							<span className='h-3 w-0.25 bg-muted-foreground'></span>
 							<span className='text-muted-foreground text-sm'>
 								{address.phoneNumber}
@@ -91,7 +93,7 @@ const AddressItem = ({ address, setShowAddAddress }: Props) => {
 							</Badge>
 						</div>
 					</div>
-					<div className='flex flex-col gap-2'>
+					<div className='flex flex-col items-center gap-2'>
 						<div className='flex gap-2'>
 							<Button
 								variant='outline'

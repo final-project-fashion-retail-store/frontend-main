@@ -14,13 +14,7 @@ const AddressContainer = () => {
 	return (
 		<>
 			<AddressHeader setShowAddAddress={setShowAddAddress} />
-			{showAddAddress && (
-				<AddressForm
-					editingAddress={false}
-					setShowAddAddress={setShowAddAddress}
-					handleImportProfileData={() => {}}
-				/>
-			)}
+			{showAddAddress && <AddressForm setShowAddAddress={setShowAddAddress} />}
 			<AddressList setShowAddAddress={setShowAddAddress} />
 		</>
 	);

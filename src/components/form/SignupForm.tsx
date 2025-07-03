@@ -26,8 +26,8 @@ import useAuthStore from '@/stores/authStore';
 import { useShallow } from 'zustand/shallow';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import useGeneralStore from '@/stores/generalStore';
 import getOauthGoogleUrl from '@/lib/getOauthGoogleUrl';
+import useCommonStore from '@/stores/commonStore';
 
 const formSchema = z
 	.object({
@@ -49,7 +49,7 @@ const SignupForm = () => {
 	const [isSigningUp, signup] = useAuthStore(
 		useShallow((state) => [state.isSigningUp, state.signup])
 	);
-	const setForm = useGeneralStore((state) => state.setForm);
+	const setForm = useCommonStore((state) => state.setForm);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [isCheckedTerms, setIsCheckedTerms] = useState(true);

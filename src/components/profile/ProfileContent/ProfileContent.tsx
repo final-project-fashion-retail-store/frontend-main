@@ -11,7 +11,7 @@ type Props = {
 const ProfileContent = ({ activeTab }: Props) => {
 	const authUser = useAuthStore((state) => state.authUser);
 	return (
-		<div className='col-span-3'>
+		<div className='lg:col-span-3'>
 			{activeTab === 'profile' && (
 				<div className='space-y-6'>
 					<ProfileInformation />

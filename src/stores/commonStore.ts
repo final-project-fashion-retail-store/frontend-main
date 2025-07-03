@@ -23,6 +23,7 @@ type Stores = {
 	categories: Category[] | null;
 	brands: Brand[] | null;
 	uploadedImages: { public_id: string; secure_url: string }[] | null;
+	form: 'login' | 'signup' | 'forgotPassword';
 
 	isGettingBrands: boolean;
 	isUploadingImages: boolean;
@@ -35,6 +36,8 @@ type Stores = {
 	getProvinces: () => void;
 	getDistricts: (provinceId: string) => void;
 	getWards: (districtId: string) => void;
+	setForm: (form: 'login' | 'signup' | 'forgotPassword') => void;
+	reset: () => void;
 };
 
 const useCommonStore = create<Stores>((set) => ({
@@ -44,6 +47,7 @@ const useCommonStore = create<Stores>((set) => ({
 	categories: null,
 	brands: null,
 	uploadedImages: null,
+	form: 'login',
 
 	isGettingBrands: false,
 	isUploadingImages: false,
@@ -144,6 +148,18 @@ const useCommonStore = create<Stores>((set) => ({
 				console.log(err);
 			}
 		}
+	},
+
+	setForm(form) {
+		set({ form });
+	},
+
+	reset() {
+		set({
+			provinces: null,
+			districts: null,
+			wards: null,
+		});
 	},
 }));
 

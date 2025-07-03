@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Import, LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import SelectFormCustom from '@/components/custom/select-form-custom';
 
 import { useShallow } from 'zustand/shallow';
@@ -53,27 +53,29 @@ const formSchema = z.object({
 });
 
 type Props = {
-	editingAddress: boolean;
 	setShowAddAddress: Dispatch<SetStateAction<boolean>>;
-	handleImportProfileData: () => void;
 };
 
-const AddressForm = ({
-	editingAddress,
-	handleImportProfileData,
-	setShowAddAddress,
-}: Props) => {
-	const [provinces, districts, wards, getProvinces, getDistricts, getWards] =
-		useCommonStore(
-			useShallow((state) => [
-				state.provinces,
-				state.districts,
-				state.wards,
-				state.getProvinces,
-				state.getDistricts,
-				state.getWards,
-			])
-		);
+const AddressForm = ({ setShowAddAddress }: Props) => {
+	const [
+		provinces,
+		districts,
+		wards,
+		getProvinces,
+		getDistricts,
+		getWards,
+		reset,
+	] = useCommonStore(
+		useShallow((state) => [
+			state.provinces,
+			state.districts,
+			state.wards,
+			state.getProvinces,
+			state.getDistricts,
+			state.getWards,
+			state.reset,
+		])
+	);
 	const [
 		selectedAddress,
 		isCreatingAddress,
@@ -198,17 +200,8 @@ const AddressForm = ({
 			<Card>
 				{isCreatingAddress && <Overlay />}
 				<CardHeader>
-					<CardTitle className='flex items-center justify-between'>
-						<span>{editingAddress ? 'Edit Address' : 'Add New Address'}</span>
-						<Button
-							variant='outline'
-							size='sm'
-							onClick={handleImportProfileData}
-							className='text-purple-600 border-purple-200 hover:bg-purple-50 bg-transparent'
-						>
-							<Import className='w-4 h-4 mr-2' />
-							Import Profile Data
-						</Button>
+					<CardTitle>
+						{selectedAddress ? 'Edit Address' : 'Add New Address'}
 					</CardTitle>
 				</CardHeader>
 				<CardContent className='space-y-4'>
@@ -359,6 +352,7 @@ const AddressForm = ({
 									onClick={() => {
 										setShowAddAddress(false);
 										setSelectedAddress(null);
+										reset();
 									}}
 								>
 									Cancel

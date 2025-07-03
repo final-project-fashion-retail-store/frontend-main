@@ -23,11 +23,11 @@ import { toast } from 'sonner';
 import ThemeToggleComp from '@/components/theme-toggle';
 import dynamic from 'next/dynamic';
 import Form from '@/components/form/Form';
-import useGeneralStore from '@/stores/generalStore';
 import { useOAuthHandler } from '@/hooks/useOAuthHandler';
 import Navigation from '@/components/header/navigation/Navigation';
 import MobileNavigation from './mobileNavigation/MobileNavigation';
 import ImageCustom from '@/components/custom/image-custom';
+import useCommonStore from '@/stores/commonStore';
 
 const dropdownUserMenuItems = [
 	{
@@ -68,7 +68,7 @@ const Header = () => {
 		])
 	);
 
-	const setForm = useGeneralStore((state) => state.setForm);
+	const setForm = useCommonStore((state) => state.setForm);
 	const router = useRouter();
 
 	useOAuthHandler();
@@ -88,7 +88,7 @@ const Header = () => {
 	return (
 		<div className='max-lg:border-b lg:flex sticky top-0 left-0 right-0 w-full lg:pt-6 flex-col justify-center lg:space-y-4 z-[50] bg-background'>
 			<MobileNavigation />
-			<div className='hidden lg:block container mx-auto 2xl:px-6  3xl:px-0'>
+			<div className='hidden lg:block container mx-auto lg:px-2 2xl:px-6  3xl:px-0'>
 				{(isLoggingIn ||
 					isSigningUp ||
 					isLoggingOut ||

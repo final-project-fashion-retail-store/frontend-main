@@ -3,10 +3,10 @@
 import ForgotPasswordForm from '@/components/form/ForgotPasswordForm';
 import LoginForm from '@/components/form/LoginForm';
 import SignupForm from '@/components/form/SignupForm';
-import useGeneralStore from '@/stores/generalStore';
+import useCommonStore from '@/stores/commonStore';
 
 const Form = () => {
-	const form = useGeneralStore((state) => state.form);
+	const form = useCommonStore((state) => state.form);
 	return (
 		<>
 			{form === 'login' && <LoginForm />}

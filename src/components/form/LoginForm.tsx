@@ -23,8 +23,8 @@ import useAuthStore from '@/stores/authStore';
 import { useShallow } from 'zustand/shallow';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import useGeneralStore from '@/stores/generalStore';
 import getOauthGoogleUrl from '@/lib/getOauthGoogleUrl';
+import useCommonStore from '@/stores/commonStore';
 
 const formSchema = z.object({
 	email: z.string().email().nonempty('Email is required'),
@@ -38,7 +38,7 @@ const LoginForm = () => {
 	const [isLoggingIn, login] = useAuthStore(
 		useShallow((state) => [state.isLoggingIn, state.login])
 	);
-	const setForm = useGeneralStore((state) => state.setForm);
+	const setForm = useCommonStore((state) => state.setForm);
 	const [showPassword, setShowPassword] = useState(false);
 
 	const oauthURL = getOauthGoogleUrl();
