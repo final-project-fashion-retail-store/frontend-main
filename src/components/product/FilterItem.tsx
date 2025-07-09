@@ -5,6 +5,10 @@ type Props = {
 	title: string;
 	children: React.ReactNode;
 	sectionKey:
+		| 'materials'
+		| 'seasons'
+		| 'gender'
+		| 'subcategories'
 		| 'colors'
 		| 'brands'
 		| 'sizes'
@@ -12,8 +16,15 @@ type Props = {
 		| 'availability'
 		| 'categories';
 	page?: 'category' | 'brand';
+	borderBottom?: boolean;
 };
-const FilterItem = ({ title, children, sectionKey, page }: Props) => {
+const FilterItem = ({
+	title,
+	children,
+	sectionKey,
+	page,
+	borderBottom = true,
+}: Props) => {
 	const initialExpandedSections: Record<string, boolean> = {
 		colors: true,
 		brands: true,
@@ -41,7 +52,7 @@ const FilterItem = ({ title, children, sectionKey, page }: Props) => {
 	};
 
 	return (
-		<div className='border-b border-gray-200 pb-4'>
+		<div className={`${borderBottom && 'border-b'} pb-4`}>
 			<button
 				onClick={() => toggleSection(sectionKey)}
 				className='flex items-center justify-between w-full py-2 text-left font-medium hover:text-purple-600'

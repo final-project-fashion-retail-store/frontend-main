@@ -1,26 +1,43 @@
 import SelectCustom from '@/components/custom/select-custom';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import sortOptions from '@/constants/SortOptions';
+import { Filter } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 
 type Props = {
 	pageTitle?: string;
+	productCount?: number;
 	sortBy: string;
+	isMobileFiltersOpen?: boolean;
+	setIsMobileFiltersOpen: Dispatch<SetStateAction<boolean>>;
 	setSortBy: Dispatch<SetStateAction<string>>;
+	getActiveFiltersCount: () => number;
 };
 
-const PageHeader = ({ pageTitle, sortBy, setSortBy }: Props) => {
+const PageHeader = ({
+	pageTitle,
+	productCount,
+	sortBy,
+	setSortBy,
+	isMobileFiltersOpen,
+	setIsMobileFiltersOpen,
+	getActiveFiltersCount,
+}: Props) => {
 	return (
-		<div className='flex items-center justify-between mb-6'>
-			<div>
-				<h1 className='text-3xl font-bold mb-2'>
+		<div className='flex items-center justify-between max-sm:flex-col max-sm:gap-4 mb-6'>
+			<div className='max-sm:text-center'>
+				<h1 className='text-xl sm:text-3xl font-bold sm:mb-2'>
 					{pageTitle ? `${pageTitle}` : 'Products'}
 				</h1>
-				<p className='text-gray-600'>10 products found</p>
+				<p className='max-sm:text-sm text-muted-foreground'>
+					{productCount} product(s) found
+				</p>
 			</div>
 
 			{/* Sort and View Controls */}
-			<div className='flex items-center gap-4'>
+			<div className='flex items-center gap-4 max-sm:w-full max-sm:justify-between max-sm:flex-row-reverse'>
 				<div className='flex items-center gap-2'>
 					<Label
 						htmlFor='sort'
@@ -35,15 +52,21 @@ const PageHeader = ({ pageTitle, sortBy, setSortBy }: Props) => {
 					/>
 				</div>
 				{/* Mobile Filter Toggle */}
-				{/* <Button
-					variant='outline'
-					size='sm'
-					onClick={() => setIsMobileFiltersOpen(true)}
-					className='lg:hidden'
+				<Sheet
+					open={isMobileFiltersOpen}
+					onOpenChange={setIsMobileFiltersOpen}
 				>
-					<Filter className='w-4 h-4 mr-2' />
-					Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
-				</Button> */}
+					<SheetTrigger asChild>
+						<Button
+							variant='outline'
+							size='sm'
+							className='lg:hidden bg-transparent'
+						>
+							<Filter className='w-4 h-4 mr-2' />
+							Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+						</Button>
+					</SheetTrigger>
+				</Sheet>
 			</div>
 		</div>
 	);

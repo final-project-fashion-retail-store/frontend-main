@@ -11,3 +11,38 @@ export const getProducts = async (featuredProduct?: boolean | '') => {
 		if (isAxiosError(error)) return error;
 	}
 };
+
+export const getProductByCategory = async (
+	slug: string,
+	link: string,
+	limit: string,
+	queries: string
+) => {
+	try {
+		const res = await axios.get(
+			link ||
+				`api/v1/products/category/${slug}?fields=-active,-createdAt,-updatedAt&limit=${limit}&${queries}`
+		);
+		return res.data;
+	} catch (error) {
+		if (isAxiosError(error)) return error;
+	}
+};
+
+export const getProductBySubcategory = async (
+	categorySlug: string,
+	subcategorySlug: string,
+	link: string,
+	limit: string,
+	queries: string
+) => {
+	try {
+		const res = await axios.get(
+			link ||
+				`api/v1/products/category/${categorySlug}/subcategory/${subcategorySlug}?fields=-active,-createdAt,-updatedAt&limit=${limit}&limit=${limit}&${queries}`
+		);
+		return res.data;
+	} catch (error) {
+		if (isAxiosError(error)) return error;
+	}
+};

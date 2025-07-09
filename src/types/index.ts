@@ -10,7 +10,9 @@ export type { Message } from './Message';
 // General
 export type { Category } from './Category';
 export type { Brand } from './Brand';
+export type { Pagination } from './Pagination';
 
 // Product
 export type { Product } from './Product';
 export type { ProductVariant } from './ProductVariant';
+export type { Filter } from './Filter';

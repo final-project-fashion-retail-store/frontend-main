@@ -3,8 +3,7 @@
 import { useShallow } from 'zustand/shallow';
 import Link from 'next/link';
 
-import { Input } from '@/components/ui/input';
-import { Heart, Search, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { DialogForm } from '@/components/form';
@@ -28,6 +27,8 @@ import Navigation from '@/components/header/navigation/Navigation';
 import MobileNavigation from './mobileNavigation/MobileNavigation';
 import ImageCustom from '@/components/custom/image-custom';
 import useCommonStore from '@/stores/commonStore';
+import { Suspense } from 'react';
+import SearchDropdown from '@/components/header/SearchDropdown';
 
 const dropdownUserMenuItems = [
 	{
@@ -71,7 +72,7 @@ const Header = () => {
 	const setForm = useCommonStore((state) => state.setForm);
 	const router = useRouter();
 
-	useOAuthHandler();
+	// useOAuthHandler();
 
 	const handleClickLogout = async () => {
 		if (isLoggingOut) return;
@@ -85,8 +86,16 @@ const Header = () => {
 		}
 	};
 
+	const OAuthHandlerInner = () => {
+		useOAuthHandler();
+		return null;
+	};
+
 	return (
 		<div className='max-lg:border-b lg:flex sticky top-0 left-0 right-0 w-full lg:pt-6 flex-col justify-center lg:space-y-4 z-[50] bg-background'>
+			<Suspense fallback={null}>
+				<OAuthHandlerInner />
+			</Suspense>
 			<MobileNavigation />
 			<div className='hidden lg:block container mx-auto lg:px-2 2xl:px-6  3xl:px-0'>
 				{(isLoggingIn ||
@@ -98,11 +107,12 @@ const Header = () => {
 				<div className='flex items-center justify-between border-b py-4'>
 					{/* Search */}
 					<div className='w-72 relative'>
-						<Input
+						{/* <Input
 							className='pl-8'
 							placeholder='Search...'
 						/>
-						<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 size-5 text-muted-foreground' />
+						<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 size-5 text-muted-foreground' /> */}
+						<SearchDropdown />
 					</div>
 					{/* Logo */}
 					<span className='w-40 h-auto absolute left-1/2 transform -translate-x-1/2'>

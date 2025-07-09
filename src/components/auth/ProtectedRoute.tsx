@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/stores/authStore';
 import { useShallow } from 'zustand/shallow';
+import Loader from '@/components/Loader';
 
 type Props = {
 	children: React.ReactNode;
@@ -44,11 +45,7 @@ export default function ProtectedRoute({
 
 	// Show loading while checking auth
 	if (isCheckingAuth || !hasInitialized) {
-		return (
-			<div className='flex items-center justify-center h-screen'>
-				<div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500'></div>
-			</div>
-		);
+		return <Loader />;
 	}
 
 	// Don't render children if auth requirements aren't met
