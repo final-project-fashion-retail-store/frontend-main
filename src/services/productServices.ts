@@ -46,3 +46,23 @@ export const getProductBySubcategory = async (
 		if (isAxiosError(error)) return error;
 	}
 };
+
+export const getSearchResultPopup = async (searchResult: string) => {
+	try {
+		const response = await axios.get(
+			`api/v1/products/search/popup?q=${searchResult}`
+		);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) return error;
+	}
+};
+
+export const getSearchResultProducts = async (queries: string) => {
+	try {
+		const response = await axios.get(`api/v1/products/search?${queries}`);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) return error;
+	}
+};

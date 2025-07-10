@@ -1,4 +1,5 @@
 type QueryParams = {
+	q: string;
 	colors: string[];
 	brands: string[];
 	sizes: string[];
@@ -12,6 +13,7 @@ type QueryParams = {
 
 const buildApiQuery = (params: URLSearchParams, query: QueryParams) => {
 	const {
+		q,
 		colors,
 		brands,
 		sizes,
@@ -23,6 +25,7 @@ const buildApiQuery = (params: URLSearchParams, query: QueryParams) => {
 		maxPrice,
 	} = query;
 
+	if (q) params.set('q', q);
 	if (colors.length) params.set('colors', colors.join(','));
 	if (brands.length) params.set('brands', brands.join(','));
 	if (sizes.length) params.set('sizes', sizes.join(','));

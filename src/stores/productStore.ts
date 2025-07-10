@@ -2,8 +2,10 @@ import {
 	getProductByCategory,
 	getProductBySubcategory,
 	getProducts,
+	getSearchResultPopup,
+	getSearchResultProducts,
 } from '@/services/productServices';
-import { Product, Filter, Pagination } from '@/types';
+import { Product, Filter, Pagination, SearchResultPopup } from '@/types';
 import { AxiosError } from 'axios';
 import { create } from 'zustand';
 
@@ -12,11 +14,13 @@ type Stores = {
 	bestSellingProducts: Product[] | null;
 	pagination: Pagination | null;
 	filter: Filter | null;
+	searchResultPopup: SearchResultPopup | null;
 
 	isGettingProducts: boolean;
 	isGettingBestSellingProducts: boolean;
 	isGettingProductByCategory: boolean;
 	isGettingProductBySubcategory: boolean;
+	isGettingSearchResultPopup: boolean;
 
 	getProducts: (featuredProduct?: boolean | '') => void;
 	getProductByCategory: (
@@ -32,6 +36,8 @@ type Stores = {
 		limit?: string,
 		queries?: string
 	) => void;
+	getSearchResultPopup: (searchResult: string) => void;
+	getProductBySearch: (queries: string) => void;
 };
 
 const useProductStore = create<Stores>((set) => ({
@@ -39,11 +45,13 @@ const useProductStore = create<Stores>((set) => ({
 	bestSellingProducts: null,
 	pagination: null,
 	filter: null,
+	searchResultPopup: null,
 
 	isGettingProducts: false,
 	isGettingBestSellingProducts: false,
 	isGettingProductByCategory: false,
 	isGettingProductBySubcategory: false,
+	isGettingSearchResultPopup: false,
 
 	async getProducts(featuredProduct = '') {
 		try {
@@ -105,6 +113,38 @@ const useProductStore = create<Stores>((set) => ({
 			}
 		} finally {
 			set({ isGettingProductBySubcategory: false });
+		}
+	},
+
+	async getSearchResultPopup(searchResult) {
+		try {
+			set({ isGettingSearchResultPopup: true });
+			const res = await getSearchResultPopup(searchResult);
+			set({ searchResultPopup: res.data.results });
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+			}
+		} finally {
+			set({ isGettingSearchResultPopup: false });
+		}
+	},
+
+	async getProductBySearch(queries) {
+		try {
+			set({ isGettingProducts: true });
+			const res = await getSearchResultProducts(queries);
+			set({
+				products: res.data.products,
+				pagination: res.data.pagination,
+				filter: res.data.filters,
+			});
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+			}
+		} finally {
+			set({ isGettingProducts: false });
 		}
 	},
 }));

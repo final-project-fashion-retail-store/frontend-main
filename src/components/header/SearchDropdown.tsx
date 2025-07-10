@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import type React from 'react';
@@ -15,78 +14,19 @@ import {
 	useRole,
 	useInteractions,
 } from '@floating-ui/react';
-import {
-	Search,
-	Clock,
-	TrendingUp,
-	ArrowRight,
-	X,
-	LoaderCircle,
-} from 'lucide-react';
+import { Search, ArrowRight, X, LoaderCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import useProductStore from '@/stores/productStore';
+import { useShallow } from 'zustand/shallow';
+import useDebounce from '@/hooks/useDebounce';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-// Mock search data
-const mockSearchData = {
-	products: [
-		{
-			id: 1,
-			name: 'Classic Cotton T-Shirt',
-			brand: 'Nike',
-			price: 29.99,
-			image:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1751708470/e3mgspizprmhnw4hmyii.avif',
-			category: 'Shirts',
-		},
-		{
-			id: 2,
-			name: 'Premium Polo Shirt',
-			brand: 'Adidas',
-			price: 49.99,
-			image:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1751708470/e3mgspizprmhnw4hmyii.avif',
-			category: 'Shirts',
-		},
-		{
-			id: 3,
-			name: 'Athletic Performance Tee',
-			brand: 'Under Armour',
-			price: 39.99,
-			image:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1751708470/e3mgspizprmhnw4hmyii.avif',
-			category: 'Shirts',
-		},
-	],
-	categories: [
-		{ name: 'T-Shirts', count: 45, icon: '👕' },
-		{ name: 'Polo Shirts', count: 23, icon: '👔' },
-		{ name: 'Hoodies', count: 18, icon: '🧥' },
-	],
-	brands: [
-		{ name: 'Nike', count: 156 },
-		{ name: 'Adidas', count: 134 },
-		{ name: 'Under Armour', count: 89 },
-	],
-	suggestions: [
-		'cotton t-shirt',
-		'polo shirt',
-		'athletic wear',
-		'casual shirts',
-	],
-	recentSearches: ['nike shoes', 'polo shirt', 'cotton t-shirt'],
-	trending: [
-		'summer collection',
-		'athletic wear',
-		'casual shirts',
-		'polo shirts',
-	],
-};
-
-interface SearchDropdownProps {
+interface Props {
 	placeholder?: string;
 	className?: string;
 }
@@ -94,14 +34,22 @@ interface SearchDropdownProps {
 function SearchDropdown({
 	placeholder = 'Search products, categories...',
 	className = '',
-}: SearchDropdownProps) {
+}: Props) {
+	const [isGettingSearchResultPopup, searchResultPopup, getSearchResultPopup] =
+		useProductStore(
+			useShallow((state) => [
+				state.isGettingSearchResultPopup,
+				state.searchResultPopup,
+				state.getSearchResultPopup,
+			])
+		);
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [isLoading, setIsLoading] = useState(false);
-	const [searchResults, setSearchResults] = useState<any>(null);
-	const [selectedIndex, setSelectedIndex] = useState(-1);
 
+	const searchQueryDebounced = useDebounce(searchQuery, 500);
 	const searchInputRef = useRef<HTMLInputElement>(null);
+	const router = useRouter();
 
 	const { refs, floatingStyles, context } = useFloating({
 		open: isOpen,
@@ -126,148 +74,45 @@ function SearchDropdown({
 
 	const { getFloatingProps } = useInteractions([click, dismiss, role]);
 
-	// Simulate search API call
-	const performSearch = async (query: string) => {
-		if (!query.trim()) {
-			setSearchResults(null);
-			setIsOpen(false);
-			return;
-		}
-
-		setIsLoading(true);
-		setIsOpen(true);
-
-		// Simulate API delay
-		await new Promise((resolve) => setTimeout(resolve, 300));
-
-		// Filter mock data based on query
-		const filteredProducts = mockSearchData.products.filter(
-			(product) =>
-				product.name.toLowerCase().includes(query.toLowerCase()) ||
-				product.brand.toLowerCase().includes(query.toLowerCase()) ||
-				product.category.toLowerCase().includes(query.toLowerCase())
-		);
-
-		const filteredCategories = mockSearchData.categories.filter((category) =>
-			category.name.toLowerCase().includes(query.toLowerCase())
-		);
-
-		const filteredBrands = mockSearchData.brands.filter((brand) =>
-			brand.name.toLowerCase().includes(query.toLowerCase())
-		);
-
-		const filteredSuggestions = mockSearchData.suggestions.filter((suggestion) =>
-			suggestion.toLowerCase().includes(query.toLowerCase())
-		);
-
-		setSearchResults({
-			products: filteredProducts,
-			categories: filteredCategories,
-			brands: filteredBrands,
-			suggestions: filteredSuggestions,
-			query,
-		});
-
-		setIsLoading(false);
-	};
-
 	// Debounced search
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			performSearch(searchQuery);
-		}, 300);
-
-		return () => clearTimeout(timer);
-	}, [searchQuery]);
+		if (searchQueryDebounced.trim()) {
+			getSearchResultPopup(searchQueryDebounced);
+			setIsOpen(true);
+		}
+	}, [searchQueryDebounced, getSearchResultPopup]);
 
 	// Handle input change
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		setSearchQuery(value);
-		setSelectedIndex(-1);
 
 		if (!value.trim()) {
-			setSearchResults(null);
 			setIsOpen(false);
 		}
 	};
 
 	// Handle input focus
 	const handleInputFocus = () => {
-		if (searchQuery.trim() && searchResults) {
+		if (searchQuery.trim() && searchResultPopup) {
 			setIsOpen(true);
-		}
-		// else if (!searchQuery.trim()) {
-		// 	// Show recent searches and trending when focused with empty query
-		// 	setSearchResults({
-		// 		products: [],
-		// 		categories: [],
-		// 		brands: [],
-		// 		suggestions: [],
-		// 		recentSearches: mockSearchData.recentSearches,
-		// 		trending: mockSearchData.trending,
-		// 		query: '',
-		// 	});
-		// 	setIsOpen(true);
-		// }
-	};
-
-	// Handle keyboard navigation
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (!isOpen || !searchResults) return;
-
-		const totalItems =
-			searchResults.products.length +
-			searchResults.categories.length +
-			searchResults.brands.length;
-
-		switch (e.key) {
-			case 'ArrowDown':
-				e.preventDefault();
-				setSelectedIndex((prev) => (prev < totalItems - 1 ? prev + 1 : prev));
-				break;
-			case 'ArrowUp':
-				e.preventDefault();
-				setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-				break;
-			case 'Enter':
-				e.preventDefault();
-				if (selectedIndex >= 0) {
-					// Handle selection
-					console.log('Selected item at index:', selectedIndex);
-				} else {
-					// Show all results
-					handleShowAllResults();
-				}
-				break;
-			case 'Escape':
-				setIsOpen(false);
-				searchInputRef.current?.blur();
-				break;
 		}
 	};
 
 	const handleShowAllResults = () => {
-		console.log('Show all results for:', searchQuery);
+		if (!searchQuery.trim()) return;
+		router.push(`/search?q=${searchQuery}`);
+
 		setIsOpen(false);
 		// Navigate to search results page
 	};
 
 	const handleClearSearch = () => {
 		setSearchQuery('');
-		setSearchResults(null);
 		setIsOpen(false);
-		searchInputRef.current?.focus();
-	};
-
-	const handleRecentSearchClick = (search: string) => {
-		setSearchQuery(search);
-		searchInputRef.current?.focus();
-	};
-
-	const handleTrendingClick = (trend: string) => {
-		setSearchQuery(trend);
-		searchInputRef.current?.focus();
+		setTimeout(() => {
+			searchInputRef.current?.focus();
+		}, 0);
 	};
 
 	return (
@@ -283,7 +128,6 @@ function SearchDropdown({
 					value={searchQuery}
 					onChange={handleInputChange}
 					onFocus={handleInputFocus}
-					onKeyDown={handleKeyDown}
 					className='w-full px-10'
 				/>
 				<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4' />
@@ -315,85 +159,32 @@ function SearchDropdown({
 						transition={{ duration: 0.2 }}
 						className='bg-white dark:bg-accent z-50 rounded-lg shadow-xl border overflow-hidden'
 					>
-						{isLoading ? (
+						{isGettingSearchResultPopup ? (
 							<div className='p-6 text-center'>
 								<LoaderCircle className='w-6 h-6 animate-spin mx-auto mb-2 text-purple-600' />
 								<p className='text-sm text-muted-foreground'>Searching...</p>
 							</div>
-						) : searchResults ? (
+						) : searchResultPopup ? (
 							<div className='max-h-96 overflow-y-auto'>
-								{/* Recent Searches & Trending (when no query) */}
-								{!searchResults.query && (
-									<div className='p-4 space-y-4'>
-										{searchResults.recentSearches.length > 0 && (
-											<div>
-												<div className='flex items-center gap-2 mb-3'>
-													<Clock className='w-4 h-4 text-gray-400' />
-													<span className='text-sm font-medium text-gray-700'>
-														Recent Searches
-													</span>
-												</div>
-												<div className='space-y-2'>
-													{searchResults.recentSearches.map(
-														(search: string, index: number) => (
-															<button
-																key={index}
-																onClick={() => handleRecentSearchClick(search)}
-																className='flex items-center w-full text-left px-2 py-1 rounded hover:bg-gray-50 text-sm text-gray-600'
-															>
-																<Clock className='w-3 h-3 mr-2 text-gray-400' />
-																{search}
-															</button>
-														)
-													)}
-												</div>
-											</div>
-										)}
-
-										{searchResults.trending.length > 0 && (
-											<div>
-												<div className='flex items-center gap-2 mb-3'>
-													<TrendingUp className='w-4 h-4 text-gray-400' />
-													<span className='text-sm font-medium text-gray-700'>Trending</span>
-												</div>
-												<div className='flex flex-wrap gap-2'>
-													{searchResults.trending.map((trend: string, index: number) => (
-														<Badge
-															key={index}
-															variant='secondary'
-															className='cursor-pointer hover:bg-purple-100 hover:text-purple-700'
-															onClick={() => handleTrendingClick(trend)}
-														>
-															{trend}
-														</Badge>
-													))}
-												</div>
-											</div>
-										)}
-									</div>
-								)}
-
 								{/* Search Results */}
-								{searchResults.query && (
-									<>
-										{/* Products */}
-										{searchResults.products.length > 0 && (
-											<div className='p-4'>
-												<h3 className='text-sm font-medium text-muted-foreground mb-3'>
-													Products
-												</h3>
-												<div className='space-y-2'>
-													{searchResults.products
-														.slice(0, 3)
-														.map((product: any, index: number) => (
+								{searchResultPopup?.products &&
+									searchResultPopup?.subcategories &&
+									searchResultPopup?.brands && (
+										<>
+											{/* Products */}
+											{searchResultPopup.products.length > 0 && (
+												<div className='p-4'>
+													<h3 className='text-sm font-medium text-muted-foreground mb-3'>
+														Products
+													</h3>
+													<div className='space-y-2'>
+														{searchResultPopup.products.slice(0, 3).map((product) => (
 															<div
-																key={product.id}
-																className={`flex items-center gap-3 p-2 rounded-lg hover:bg-accent dark:hover:bg-muted-foreground/10 cursor-pointer ${
-																	selectedIndex === index ? 'bg-purple-50' : ''
-																}`}
+																key={product._id}
+																className='flex items-center gap-3 p-2 rounded-lg hover:bg-accent dark:hover:bg-muted-foreground/10 cursor-pointer'
 															>
 																<Image
-																	src={product.image || '/placeholder.svg'}
+																	src={product.images[0].url}
 																	alt={product.name}
 																	width={40}
 																	height={40}
@@ -404,106 +195,107 @@ function SearchDropdown({
 																		{product.name}
 																	</p>
 																	<p className='text-xs text-muted-foreground'>
-																		{product.brand}
+																		{product.brand.name}
 																	</p>
 																</div>
 																<span className='text-sm font-medium text-purple-600'>
-																	${product.price}
-																</span>
-															</div>
-														))}
-												</div>
-											</div>
-										)}
-										{/* Categories */}
-										{searchResults.categories.length > 0 && (
-											<>
-												<Separator />
-												<div className='p-4'>
-													<h3 className='text-sm font-medium text-gray-700 mb-3'>
-														Categories
-													</h3>
-													<div className='space-y-2'>
-														{searchResults.categories.map((category: any) => (
-															<div
-																key={category.name}
-																className='flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
-															>
-																<span className='text-lg'>{category.icon}</span>
-																<div className='flex-1'>
-																	<p className='text-sm font-medium text-gray-900'>
-																		{category.name}
-																	</p>
-																	<p className='text-xs text-gray-500'>{category.count} items</p>
-																</div>
-															</div>
-														))}
-													</div>
-												</div>
-											</>
-										)}
-
-										{/* Brands */}
-										{searchResults.brands.length > 0 && (
-											<>
-												<Separator />
-												<div className='p-4'>
-													<h3 className='text-sm font-medium text-gray-700 mb-3'>Brands</h3>
-													<div className='space-y-2'>
-														{searchResults.brands.map((brand: any) => (
-															<div
-																key={brand.name}
-																className='flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
-															>
-																<span className='text-sm font-medium text-gray-900'>
-																	{brand.name}
-																</span>
-																<span className='text-xs text-gray-500'>
-																	{brand.count} items
+																	${product.salePrice}
 																</span>
 															</div>
 														))}
 													</div>
-												</div>
-											</>
-										)}
-										{/* No Results */}
-										{searchResults.products.length === 0 &&
-											searchResults.categories.length === 0 &&
-											searchResults.brands.length === 0 && (
-												<div className='p-6 text-center'>
-													<Search className='w-8 h-8 text-muted-foreground mx-auto mb-2' />
-													<p className='text-sm text-muted-foreground mb-1'>
-														No results found
-													</p>
-													<p className='text-xs text-muted-foreground'>
-														Try different keywords or check spelling
-													</p>
 												</div>
 											)}
+											{/* Categories */}
+											{searchResultPopup.subcategories.length > 0 && (
+												<>
+													<Separator />
+													<div className='p-4'>
+														<h3 className='text-sm font-medium text-gray-700 mb-3'>
+															Categories
+														</h3>
+														<div className='space-y-2'>
+															{searchResultPopup.subcategories.map((category) => (
+																<Link
+																	key={category.name}
+																	href={`/category/${category.parentCategory[0].slug}/${category.slug}`}
+																	className='flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
+																>
+																	{/* <span className='text-lg'>{category.icon}</span> */}
+																	<div className='flex-1'>
+																		<p className='text-sm font-medium text-gray-900'>
+																			{category.name}
+																		</p>
+																		<p className='text-xs text-gray-500'>
+																			{category.productCount} items
+																		</p>
+																	</div>
+																</Link>
+															))}
+														</div>
+													</div>
+												</>
+											)}
 
-										{/* Show All Results Button */}
-										{(searchResults.products.length > 0 ||
-											searchResults.categories.length > 0 ||
-											searchResults.brands.length > 0) && (
-											<>
-												<Separator />
-												<div className='p-3'>
-													<Button
-														onClick={handleShowAllResults}
-														variant='ghost'
-														className='w-full justify-between text-purple-600 hover:text-purple-700 hover:bg-purple-50'
-													>
-														<span>
-															Show all results for &quot;{searchResults.query}&quot;
-														</span>
-														<ArrowRight className='w-4 h-4' />
-													</Button>
-												</div>
-											</>
-										)}
-									</>
-								)}
+											{/* Brands */}
+											{searchResultPopup.brands.length > 0 && (
+												<>
+													<Separator />
+													<div className='p-4'>
+														<h3 className='text-sm font-medium text-gray-700 mb-3'>Brands</h3>
+														<div className='space-y-2'>
+															{searchResultPopup.brands.map((brand) => (
+																<div
+																	key={brand.name}
+																	className='flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
+																>
+																	<span className='text-sm font-medium text-gray-900'>
+																		{brand.name}
+																	</span>
+																	<span className='text-xs text-gray-500'>
+																		{brand.productCount} items
+																	</span>
+																</div>
+															))}
+														</div>
+													</div>
+												</>
+											)}
+											{/* No Results */}
+											{searchResultPopup.products.length === 0 &&
+												searchResultPopup.subcategories.length === 0 &&
+												searchResultPopup.brands.length === 0 && (
+													<div className='p-6 text-center'>
+														<Search className='w-8 h-8 text-muted-foreground mx-auto mb-2' />
+														<p className='text-sm text-muted-foreground mb-1'>
+															No results found
+														</p>
+														<p className='text-xs text-muted-foreground'>
+															Try different keywords or check spelling
+														</p>
+													</div>
+												)}
+
+											{/* Show All Results Button */}
+											{searchResultPopup.products.length > 0 && (
+												<>
+													<Separator />
+													<div className='p-3'>
+														<Button
+															onClick={handleShowAllResults}
+															variant='ghost'
+															className='w-full justify-between text-purple-600 hover:text-purple-700 hover:bg-purple-50'
+														>
+															<span className='truncate'>
+																Show all results for &quot;{searchQuery}&quot;
+															</span>
+															<ArrowRight className='w-4 h-4' />
+														</Button>
+													</div>
+												</>
+											)}
+										</>
+									)}
 							</div>
 						) : null}
 					</motion.div>

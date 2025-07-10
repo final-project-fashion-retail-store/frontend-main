@@ -5,6 +5,7 @@ const getQueryParams = (
 	searchParams: ReadonlyURLSearchParams | URLSearchParams,
 	filter: Filter | null
 ) => {
+	const q = searchParams.get('q') || '';
 	const colors = searchParams.get('colors')?.split(',').filter(Boolean) ?? [];
 	const brandNames =
 		searchParams.get('brands')?.split(',').filter(Boolean) ?? [];
@@ -35,6 +36,7 @@ const getQueryParams = (
 		.filter(Boolean);
 
 	return {
+		q,
 		colors,
 		brands: brandIds,
 		sizes,
