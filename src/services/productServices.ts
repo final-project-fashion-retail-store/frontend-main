@@ -21,7 +21,7 @@ export const getProductByCategory = async (
 	try {
 		const res = await axios.get(
 			link ||
-				`api/v1/products/category/${slug}?fields=-active,-createdAt,-updatedAt&limit=${limit}&${queries}`
+				`api/v1/products/category/${slug}?fields=-active,-createdAt,-updatedAt&limit=${1}&${queries}`
 		);
 		return res.data;
 	} catch (error) {
@@ -61,6 +61,17 @@ export const getSearchResultPopup = async (searchResult: string) => {
 export const getSearchResultProducts = async (queries: string) => {
 	try {
 		const response = await axios.get(`api/v1/products/search?${queries}`);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) return error;
+	}
+};
+
+export const getProductByBrand = async (slug: string, queries: string) => {
+	try {
+		const response = await axios.get(
+			`api/v1/products/brand/${slug}?fields=-active,-createdAt,-updatedAt&${queries}`
+		);
 		return response.data;
 	} catch (error) {
 		if (isAxiosError(error)) return error;

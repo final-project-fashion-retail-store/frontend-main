@@ -24,6 +24,7 @@ type Stores = {
 	brands: Brand[] | null;
 	uploadedImages: { public_id: string; secure_url: string }[] | null;
 	form: 'login' | 'signup' | 'forgotPassword';
+	force: boolean;
 
 	isGettingBrands: boolean;
 	isUploadingImages: boolean;
@@ -37,6 +38,7 @@ type Stores = {
 	getDistricts: (provinceId: string) => void;
 	getWards: (districtId: string) => void;
 	setForm: (form: 'login' | 'signup' | 'forgotPassword') => void;
+	setForce: (force: boolean) => void;
 	reset: () => void;
 };
 
@@ -48,6 +50,7 @@ const useCommonStore = create<Stores>((set) => ({
 	brands: null,
 	uploadedImages: null,
 	form: 'login',
+	force: true,
 
 	isGettingBrands: false,
 	isUploadingImages: false,
@@ -152,6 +155,10 @@ const useCommonStore = create<Stores>((set) => ({
 
 	setForm(form) {
 		set({ form });
+	},
+
+	setForce(force) {
+		set({ force });
 	},
 
 	reset() {

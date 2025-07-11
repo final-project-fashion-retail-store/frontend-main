@@ -13,6 +13,8 @@ import { useShallow } from 'zustand/shallow';
 import FilterSection from '@/components/product/Filter';
 import buildApiQuery from '@/lib/buildApiQuery';
 import getQueryParams from '@/lib/getQueryParams';
+import useCommonStore from '@/stores/commonStore';
+import MobileFilter from '@/components/product/MobileFilter';
 
 const SearchContainer = () => {
 	const [isGettingProducts, getProductBySearch, filter, products, pagination] =
@@ -25,6 +27,9 @@ const SearchContainer = () => {
 				state.pagination,
 			])
 		);
+	const [force, setForce] = useCommonStore(
+		useShallow((state) => [state.force, state.setForce])
+	);
 
 	const [sortBy, setSortBy] = useState('newest');
 	const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -48,6 +53,7 @@ const SearchContainer = () => {
 	const priceDebounce = useDebounce(priceRange, 500);
 	const hasUserInteracted = useRef(false);
 	// const hasGetDataAtFirstTime = useRef(false);
+	const prevSearch = useRef('');
 
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -58,10 +64,14 @@ const SearchContainer = () => {
 	];
 
 	useEffect(() => {
-		getProductBySearch(searchParams.toString());
-		// setIsInitialLoaded(true);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+		if (!force) return;
+		const currSearch = searchParams.toString();
+		if (prevSearch.current !== currSearch) {
+			prevSearch.current = currSearch;
+			getProductBySearch(currSearch);
+			setForce(false);
+		}
+	}, [force, getProductBySearch, searchParams, setForce]);
 
 	useEffect(() => {
 		if (!hasUserInteracted.current) return;
@@ -90,25 +100,6 @@ const SearchContainer = () => {
 			]);
 		}
 	}, [filter?.available.minPrice, filter?.available.maxPrice]);
-
-	// useEffect(() => {
-	// 	if (
-	// 		!searchParams.toString() ||
-	// 		hasGetDataAtFirstTime.current ||
-	// 		!isInitialLoaded
-	// 	)
-	// 		return;
-
-	// 	const queryParams = getQueryParams(searchParams, filter);
-
-	// 	const apiQuery = buildApiQuery(new URLSearchParams(), queryParams);
-	// 	// console.log(apiQuery);
-	// 	handleFilterChange(apiQuery);
-	// 	if (filter) {
-	// 		hasGetDataAtFirstTime.current = true;
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [filter, isInitialLoaded]);
 
 	useEffect(() => {
 		const queryParams = getQueryParams(searchParams, filter);
@@ -192,62 +183,73 @@ const SearchContainer = () => {
 		<div className='w-full'>
 			<div className='max-sm:hidden'>
 				<BreadcrumbCustom items={breadcrumbs} />
-				<PageHeader
-					pageTitle={`Search result for "${searchParams.get('q') || ''}"`}
-					productCount={pagination?.totalDocs || 0}
-					sortBy={sortBy}
-					isMobileFiltersOpen={isMobileFiltersOpen}
-					setIsMobileFiltersOpen={setIsMobileFiltersOpen}
-					setSortBy={setSortBy}
-					getActiveFiltersCount={getActiveFiltersCount}
-				/>
-				<div className='flex gap-8'>
-					<div className='hidden lg:block w-64 flex-shrink-0'>
-						{filter && (
-							<FilterSection
-								showCategory
-								filter={filter}
-								getActiveFiltersCount={getActiveFiltersCount}
-								clearAllFilters={clearAllFilters}
-								currentFilters={currentFilters}
-								updateQueryParam={updateQueryParam}
-								priceRange={priceRange}
-								updatePriceRange={updatePriceRange}
-							/>
-						)}
-					</div>
-					<div className='flex-1'>
-						{isGettingProducts && (
-							<div className='flex items-center justify-center h-64'>
-								<Loader />
-							</div>
-						)}
-						{!isGettingProducts && products && (
-							<div className='grid gap-4 grid-cols-2 xl:grid-cols-3'>
-								{products.length > 0 &&
-									products.map((product) => (
-										<ProductCard
-											key={product._id}
-											product={product}
-										/>
-									))}
-							</div>
-						)}
+			</div>
+			<PageHeader
+				pageTitle={`Search result for "${searchParams.get('q') || ''}"`}
+				productCount={pagination?.totalDocs || 0}
+				sortBy={sortBy}
+				isMobileFiltersOpen={isMobileFiltersOpen}
+				setIsMobileFiltersOpen={setIsMobileFiltersOpen}
+				setSortBy={setSortBy}
+				getActiveFiltersCount={getActiveFiltersCount}
+			/>
+			<div className='flex gap-8'>
+				<div className='hidden lg:block w-64 flex-shrink-0'>
+					{filter && (
+						<FilterSection
+							showCategory
+							filter={filter}
+							getActiveFiltersCount={getActiveFiltersCount}
+							clearAllFilters={clearAllFilters}
+							currentFilters={currentFilters}
+							updateQueryParam={updateQueryParam}
+							priceRange={priceRange}
+							updatePriceRange={updatePriceRange}
+						/>
+					)}
+				</div>
+				<div className='flex-1'>
+					{isGettingProducts && (
+						<div className='flex items-center justify-center h-64'>
+							<Loader />
+						</div>
+					)}
+					{!isGettingProducts && products && (
+						<div className='grid gap-4 grid-cols-2 xl:grid-cols-3'>
+							{products.length > 0 &&
+								products.map((product) => (
+									<ProductCard
+										key={product._id}
+										product={product}
+									/>
+								))}
+						</div>
+					)}
 
-						{products?.length === 0 && (
-							<div className='text-center py-12'>
-								<div className='text-muted-foreground/60 mb-4'>
-									<Filter className='w-16 h-16 mx-auto' />
-								</div>
-								<h3 className='text-xl font-semibold mb-2'>No products found</h3>
-								<p className='text-muted-foreground mb-4'>
-									Try adjusting your filters or search terms
-								</p>
+					{products?.length === 0 && (
+						<div className='text-center py-12'>
+							<div className='text-muted-foreground/60 mb-4'>
+								<Filter className='w-16 h-16 mx-auto' />
 							</div>
-						)}
-					</div>
+							<h3 className='text-xl font-semibold mb-2'>No products found</h3>
+							<p className='text-muted-foreground mb-4'>
+								Try adjusting your filters or search terms
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
+			<MobileFilter
+				filter={filter}
+				currentFilters={currentFilters}
+				showCategory
+				isMobileFiltersOpen={isMobileFiltersOpen}
+				setIsMobileFiltersOpen={setIsMobileFiltersOpen}
+				updateQueryParam={updateQueryParam}
+				priceRange={priceRange}
+				updatePriceRange={updatePriceRange}
+				clearAllFilters={clearAllFilters}
+			/>
 		</div>
 	);
 };

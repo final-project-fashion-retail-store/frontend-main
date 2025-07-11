@@ -1,46 +1,37 @@
 'use client';
 
 import BreadcrumbCustom from '@/components/custom/breadcrumb-custom';
-import Loader from '@/components/Loader';
-import Pagination from '@/components/Pagination';
-import FilterSection from '@/components/product/Filter';
 import MobileFilter from '@/components/product/MobileFilter';
 import PageHeader from '@/components/product/PageHeader';
-import ProductCard from '@/components/product/ProductCard';
 import useDebounce from '@/hooks/useDebounce';
 import buildApiQuery from '@/lib/buildApiQuery';
 import getQueryParams from '@/lib/getQueryParams';
 import useProductStore from '@/stores/productStore';
-import { Filter } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
+import FilterSection from '@/components/product/Filter';
+import Loader from '@/components/Loader';
+import ProductCard from '@/components/product/ProductCard';
+import { Filter } from 'lucide-react';
 
 type Props = {
-	params: { slug: string[] };
+	slug: string;
 };
 
-const CategoryContainer = ({ params }: Props) => {
-	const [
-		isGettingProductCategory,
-		isGettingProductSubcategory,
-		products,
-		filter,
-		getProductByCategory,
-		getProductBySubcategory,
-	] = useProductStore(
-		useShallow((state) => [
-			state.isGettingProductByCategory,
-			state.isGettingProductBySubcategory,
-			state.products,
-			state.filter,
-			state.getProductByCategory,
-			state.getProductBySubcategory,
-		])
-	);
+const BrandContainer = ({ slug }: Props) => {
+	const [isGettingProducts, products, filter, getProductByBrand, pagination] =
+		useProductStore(
+			useShallow((state) => [
+				state.isGettingProducts,
+				state.products,
+				state.filter,
+				state.getProductByBrand,
+				state.pagination,
+			])
+		);
 	const [sortBy, setSortBy] = useState('newest');
 	const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-	// For Filter
 	const [isInitialLoaded, setIsInitialLoaded] = useState(false);
 	const [priceRange, setPriceRange] = useState<[number, number]>([
 		filter?.available.minPrice || 0,
@@ -66,23 +57,9 @@ const CategoryContainer = ({ params }: Props) => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
-	const breadcrumbs = [
-		{ label: 'Home', href: '/' },
-		...params.slug.map((segment, index) => ({
-			label: segment.charAt(0).toUpperCase() + segment.slice(1).replace('-', ' '),
-			href: `/category/${params.slug.slice(0, index + 1).join('/')}`,
-		})),
-	];
-
 	useEffect(() => {
 		if (!searchParams.toString()) {
-			if (params.slug.length === 1) {
-				getProductByCategory(params.slug[0]);
-				setIsInitialLoaded(true);
-			} else if (params.slug.length === 2) {
-				getProductBySubcategory(params.slug[0], params.slug[1]);
-				setIsInitialLoaded(true);
-			}
+			getProductByBrand(slug);
 		} else {
 			// No need to wait, we just skip the firstLoad
 			setIsInitialLoaded(true);
@@ -151,11 +128,7 @@ const CategoryContainer = ({ params }: Props) => {
 	}, [searchParams, filter]);
 
 	const handleFilterChange = (queries: string) => {
-		if (params.slug.length === 1) {
-			getProductByCategory(params.slug[0], '', '12', queries);
-		} else if (params.slug.length === 2) {
-			getProductBySubcategory(params.slug[0], params.slug[1], '', '12', queries);
-		}
+		getProductByBrand(slug, queries);
 	};
 
 	const updateQueryParam = (key: string, value: string) => {
@@ -210,9 +183,10 @@ const CategoryContainer = ({ params }: Props) => {
 		);
 	};
 
-	// if (isGettingProductCategory || isGettingProductSubcategory) {
-	// 	return <Loader />;
-	// }
+	const breadcrumbs = [
+		{ label: 'Home', href: '/' },
+		{ label: 'Brand', href: `/brand/${slug}` },
+	];
 
 	return (
 		<div className='w-full'>
@@ -221,7 +195,7 @@ const CategoryContainer = ({ params }: Props) => {
 			</div>
 			<PageHeader
 				pageTitle={breadcrumbs[breadcrumbs.length - 1].label || 'Products'}
-				productCount={products?.length || 0}
+				productCount={pagination?.totalDocs || 0}
 				sortBy={sortBy}
 				isMobileFiltersOpen={isMobileFiltersOpen}
 				setIsMobileFiltersOpen={setIsMobileFiltersOpen}
@@ -232,7 +206,7 @@ const CategoryContainer = ({ params }: Props) => {
 				<div className='hidden lg:block w-64 flex-shrink-0'>
 					{filter && (
 						<FilterSection
-							showCategory={params.slug.length === 1}
+							showCategory
 							filter={filter}
 							getActiveFiltersCount={getActiveFiltersCount}
 							clearAllFilters={clearAllFilters}
@@ -244,12 +218,12 @@ const CategoryContainer = ({ params }: Props) => {
 					)}
 				</div>
 				<div className='flex-1'>
-					{(isGettingProductCategory || isGettingProductSubcategory) && (
+					{isGettingProducts && (
 						<div className='flex items-center justify-center h-64'>
 							<Loader />
 						</div>
 					)}
-					{!isGettingProductCategory && !isGettingProductSubcategory && products && (
+					{!isGettingProducts && products && (
 						<div className='grid gap-4 grid-cols-2 xl:grid-cols-3'>
 							{products.length > 0 &&
 								products.map((product) => (
@@ -260,12 +234,7 @@ const CategoryContainer = ({ params }: Props) => {
 								))}
 						</div>
 					)}
-					<div className='mt-12'>
-						<Pagination
-							paginationPage={params.slug.length === 1 ? 'category' : 'subcategory'}
-							param={params}
-						/>
-					</div>
+
 					{products?.length === 0 && (
 						<div className='text-center py-12'>
 							<div className='text-muted-foreground/60 mb-4'>
@@ -282,7 +251,7 @@ const CategoryContainer = ({ params }: Props) => {
 			<MobileFilter
 				filter={filter}
 				currentFilters={currentFilters}
-				showCategory={params.slug.length === 1}
+				showCategory
 				isMobileFiltersOpen={isMobileFiltersOpen}
 				setIsMobileFiltersOpen={setIsMobileFiltersOpen}
 				updateQueryParam={updateQueryParam}
@@ -294,4 +263,4 @@ const CategoryContainer = ({ params }: Props) => {
 	);
 };
 
-export default CategoryContainer;
+export default BrandContainer;

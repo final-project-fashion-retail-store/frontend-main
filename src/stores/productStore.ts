@@ -1,4 +1,5 @@
 import {
+	getProductByBrand,
 	getProductByCategory,
 	getProductBySubcategory,
 	getProducts,
@@ -24,20 +25,21 @@ type Stores = {
 
 	getProducts: (featuredProduct?: boolean | '') => void;
 	getProductByCategory: (
-		slug: string,
+		slug?: string,
 		link?: string,
 		limit?: string,
 		queries?: string
 	) => void;
 	getProductBySubcategory: (
-		categorySlug: string,
-		subcategorySlug: string,
+		categorySlug?: string,
+		subcategorySlug?: string,
 		link?: string,
 		limit?: string,
 		queries?: string
 	) => void;
 	getSearchResultPopup: (searchResult: string) => void;
 	getProductBySearch: (queries: string) => void;
+	getProductByBrand: (slug: string, queries?: string) => void;
 };
 
 const useProductStore = create<Stores>((set) => ({
@@ -67,7 +69,7 @@ const useProductStore = create<Stores>((set) => ({
 		}
 	},
 
-	async getProductByCategory(slug, link = '', limit = '12', queries = '') {
+	async getProductByCategory(slug = '', link = '', limit = '1', queries = '') {
 		try {
 			set({ isGettingProductByCategory: true });
 			const res = await getProductByCategory(slug, link, limit, queries);
@@ -87,8 +89,8 @@ const useProductStore = create<Stores>((set) => ({
 	},
 
 	async getProductBySubcategory(
-		categorySlug,
-		subcategorySlug,
+		categorySlug = '',
+		subcategorySlug = '',
 		link = '',
 		limit = '12',
 		queries = ''
@@ -134,6 +136,24 @@ const useProductStore = create<Stores>((set) => ({
 		try {
 			set({ isGettingProducts: true });
 			const res = await getSearchResultProducts(queries);
+			set({
+				products: res.data.products,
+				pagination: res.data.pagination,
+				filter: res.data.filters,
+			});
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+			}
+		} finally {
+			set({ isGettingProducts: false });
+		}
+	},
+
+	async getProductByBrand(slug, queries = '') {
+		try {
+			set({ isGettingProducts: true });
+			const res = await getProductByBrand(slug, queries);
 			set({
 				products: res.data.products,
 				pagination: res.data.pagination,

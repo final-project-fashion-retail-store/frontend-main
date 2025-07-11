@@ -25,6 +25,7 @@ import { useShallow } from 'zustand/shallow';
 import useDebounce from '@/hooks/useDebounce';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import useCommonStore from '@/stores/commonStore';
 
 interface Props {
 	placeholder?: string;
@@ -43,6 +44,7 @@ function SearchDropdown({
 				state.getSearchResultPopup,
 			])
 		);
+	const setForce = useCommonStore((state) => state.setForce);
 
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -115,6 +117,21 @@ function SearchDropdown({
 		}, 0);
 	};
 
+	const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (
+			e.key === 'Enter' &&
+			searchQuery.trim() &&
+			searchQuery === searchQueryDebounced
+		) {
+			setIsOpen(false);
+			setTimeout(() => {
+				searchInputRef.current?.blur();
+			}, 0);
+			setForce(true);
+			router.push(`/search?q=${searchQuery}`);
+		}
+	};
+
 	return (
 		<div className={`relative ${className}`}>
 			<div
@@ -128,6 +145,7 @@ function SearchDropdown({
 					value={searchQuery}
 					onChange={handleInputChange}
 					onFocus={handleInputFocus}
+					onKeyUp={handleKeyUp}
 					className='w-full px-10'
 				/>
 				<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4' />
