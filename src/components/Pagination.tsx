@@ -13,10 +13,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 type Props = {
 	className?: string;
 	paginationPage: 'category' | 'subcategory' | 'search' | 'brand';
-	param: { slug: string[] };
+	param?: { slug: string[] };
+	slug?: string;
 };
 
-function Pagination({ className, paginationPage, param }: Props) {
+function Pagination({ className, paginationPage, param, slug }: Props) {
 	const [
 		pagination,
 		getProductByCategory,
@@ -53,9 +54,9 @@ function Pagination({ className, paginationPage, param }: Props) {
 		} else if (paginationPage === 'subcategory') {
 			getProductBySubcategory('', '', pagination?.prevPage || '');
 		} else if (paginationPage === 'search') {
-			getProductBySearch(pagination?.prevPage || '');
+			getProductBySearch('', pagination?.prevPage || '');
 		} else if (paginationPage === 'brand') {
-			getProductByBrand(pagination?.prevPage || '');
+			getProductByBrand('', '', pagination?.prevPage || '');
 		}
 	};
 
@@ -69,9 +70,9 @@ function Pagination({ className, paginationPage, param }: Props) {
 		} else if (paginationPage === 'subcategory') {
 			getProductBySubcategory('', '', pagination?.nextPage || '');
 		} else if (paginationPage === 'search') {
-			getProductBySearch(pagination?.nextPage || '');
+			getProductBySearch('', pagination?.nextPage || '');
 		} else if (paginationPage === 'brand') {
-			getProductByBrand(pagination?.nextPage || '');
+			getProductByBrand('', '', pagination?.nextPage || '');
 		}
 	};
 
@@ -84,9 +85,13 @@ function Pagination({ className, paginationPage, param }: Props) {
 			router.push(`?${currentParams.toString()}`);
 
 			// Trigger the appropriate API call based on the paginationPage prop
-			if (paginationPage === 'category') {
+			if (paginationPage === 'category' && param?.slug?.[0]) {
 				getProductByCategory(param.slug[0], '', '', currentParams.toString());
-			} else if (paginationPage === 'subcategory') {
+			} else if (
+				paginationPage === 'subcategory' &&
+				param?.slug?.[0] &&
+				param?.slug?.[1]
+			) {
 				getProductBySubcategory(
 					param.slug[0],
 					param.slug[1],
@@ -95,7 +100,7 @@ function Pagination({ className, paginationPage, param }: Props) {
 			} else if (paginationPage === 'search') {
 				getProductBySearch(currentParams.toString());
 			} else if (paginationPage === 'brand') {
-				getProductByBrand(currentParams.toString());
+				getProductByBrand(slug || '', currentParams.toString());
 			}
 		}
 	};
@@ -127,8 +132,6 @@ function Pagination({ className, paginationPage, param }: Props) {
 
 							if (numericValue > (pagination?.totalPages || 1)) {
 								setPage(pagination?.totalPages || 1);
-							} else if (numericValue < 1) {
-								setPage(1);
 							} else {
 								setPage(numericValue);
 							}

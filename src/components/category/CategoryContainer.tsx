@@ -22,20 +22,20 @@ type Props = {
 
 const CategoryContainer = ({ params }: Props) => {
 	const [
-		isGettingProductCategory,
-		isGettingProductSubcategory,
+		isGettingProducts,
 		products,
 		filter,
 		getProductByCategory,
 		getProductBySubcategory,
+		pagination,
 	] = useProductStore(
 		useShallow((state) => [
-			state.isGettingProductByCategory,
-			state.isGettingProductBySubcategory,
+			state.isGettingProducts,
 			state.products,
 			state.filter,
 			state.getProductByCategory,
 			state.getProductBySubcategory,
+			state.pagination,
 		])
 	);
 	const [sortBy, setSortBy] = useState('newest');
@@ -192,8 +192,18 @@ const CategoryContainer = ({ params }: Props) => {
 
 	const clearAllFilters = () => {
 		hasUserInteracted.current = false;
+
+		// Preserve the 'page' parameter while clearing other filters
+		const currentParams = new URLSearchParams(searchParams.toString());
+		const pageValue = currentParams.get('page');
+		const newParams = new URLSearchParams();
+
+		if (pageValue) {
+			newParams.set('page', pageValue);
+		}
+
 		handleFilterChange('');
-		router.push(window.location.pathname);
+		router.push(`${window.location.pathname}?${newParams.toString()}`);
 	};
 
 	const getActiveFiltersCount = () => {
@@ -244,12 +254,12 @@ const CategoryContainer = ({ params }: Props) => {
 					)}
 				</div>
 				<div className='flex-1'>
-					{(isGettingProductCategory || isGettingProductSubcategory) && (
+					{isGettingProducts && (
 						<div className='flex items-center justify-center h-64'>
 							<Loader />
 						</div>
 					)}
-					{!isGettingProductCategory && !isGettingProductSubcategory && products && (
+					{!isGettingProducts && products && (
 						<div className='grid gap-4 grid-cols-2 xl:grid-cols-3'>
 							{products.length > 0 &&
 								products.map((product) => (
@@ -260,12 +270,16 @@ const CategoryContainer = ({ params }: Props) => {
 								))}
 						</div>
 					)}
-					<div className='mt-12'>
-						<Pagination
-							paginationPage={params.slug.length === 1 ? 'category' : 'subcategory'}
-							param={params}
-						/>
-					</div>
+					{!isGettingProducts &&
+						(pagination?.totalPages ?? 0) > 1 &&
+						(products?.length ?? 0) > 0 && (
+							<div className='mt-12'>
+								<Pagination
+									paginationPage={params.slug.length === 1 ? 'category' : 'subcategory'}
+									param={params}
+								/>
+							</div>
+						)}
 					{products?.length === 0 && (
 						<div className='text-center py-12'>
 							<div className='text-muted-foreground/60 mb-4'>

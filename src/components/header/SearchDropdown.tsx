@@ -263,7 +263,8 @@ function SearchDropdown({
 														<h3 className='text-sm font-medium text-gray-700 mb-3'>Brands</h3>
 														<div className='space-y-2'>
 															{searchResultPopup.brands.map((brand) => (
-																<div
+																<Link
+																	href={`/brand/${brand.slug}`}
 																	key={brand.name}
 																	className='flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
 																>
@@ -273,7 +274,7 @@ function SearchDropdown({
 																	<span className='text-xs text-gray-500'>
 																		{brand.productCount} items
 																	</span>
-																</div>
+																</Link>
 															))}
 														</div>
 													</div>

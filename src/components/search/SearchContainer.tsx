@@ -15,6 +15,7 @@ import buildApiQuery from '@/lib/buildApiQuery';
 import getQueryParams from '@/lib/getQueryParams';
 import useCommonStore from '@/stores/commonStore';
 import MobileFilter from '@/components/product/MobileFilter';
+import Pagination from '@/components/Pagination';
 
 const SearchContainer = () => {
 	const [isGettingProducts, getProductBySearch, filter, products, pagination] =
@@ -156,10 +157,15 @@ const SearchContainer = () => {
 		// Preserve the 'q' parameter while clearing other filters
 		const currentParams = new URLSearchParams(searchParams.toString());
 		const queryValue = currentParams.get('q');
+		const pageValue = currentParams.get('page');
 		const newParams = new URLSearchParams();
 
 		if (queryValue) {
 			newParams.set('q', queryValue);
+		}
+
+		if (pageValue) {
+			newParams.set('page', pageValue);
 		}
 
 		handleFilterChange(newParams.toString());
@@ -225,6 +231,13 @@ const SearchContainer = () => {
 								))}
 						</div>
 					)}
+					{!isGettingProducts &&
+						(pagination?.totalPages ?? 0) > 1 &&
+						(products?.length ?? 0) > 0 && (
+							<div className='mt-12'>
+								<Pagination paginationPage='search' />
+							</div>
+						)}
 
 					{products?.length === 0 && (
 						<div className='text-center py-12'>

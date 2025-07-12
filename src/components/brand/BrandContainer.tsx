@@ -14,6 +14,7 @@ import FilterSection from '@/components/product/Filter';
 import Loader from '@/components/Loader';
 import ProductCard from '@/components/product/ProductCard';
 import { Filter } from 'lucide-react';
+import Pagination from '@/components/Pagination';
 
 type Props = {
 	slug: string;
@@ -165,8 +166,18 @@ const BrandContainer = ({ slug }: Props) => {
 
 	const clearAllFilters = () => {
 		hasUserInteracted.current = false;
+
+		// Preserve the 'page' parameter while clearing other filters
+		const currentParams = new URLSearchParams(searchParams.toString());
+		const pageValue = currentParams.get('page');
+		const newParams = new URLSearchParams();
+
+		if (pageValue) {
+			newParams.set('page', pageValue);
+		}
+
 		handleFilterChange('');
-		router.push(window.location.pathname);
+		router.push(`${window.location.pathname}?${newParams.toString()}`);
 	};
 
 	const getActiveFiltersCount = () => {
@@ -187,7 +198,7 @@ const BrandContainer = ({ slug }: Props) => {
 		{ label: 'Home', href: '/' },
 		{ label: 'Brand', href: `/brand/${slug}` },
 	];
-
+	console.log(pagination);
 	return (
 		<div className='w-full'>
 			<div className='max-sm:hidden'>
@@ -234,7 +245,16 @@ const BrandContainer = ({ slug }: Props) => {
 								))}
 						</div>
 					)}
-
+					{!isGettingProducts &&
+						(pagination?.totalPages ?? 0) > 1 &&
+						(products?.length ?? 0) > 0 && (
+							<div className='mt-12'>
+								<Pagination
+									paginationPage='brand'
+									slug={slug}
+								/>
+							</div>
+						)}
 					{products?.length === 0 && (
 						<div className='text-center py-12'>
 							<div className='text-muted-foreground/60 mb-4'>

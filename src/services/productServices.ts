@@ -21,7 +21,7 @@ export const getProductByCategory = async (
 	try {
 		const res = await axios.get(
 			link ||
-				`api/v1/products/category/${slug}?fields=-active,-createdAt,-updatedAt&limit=${1}&${queries}`
+				`api/v1/products/category/${slug}?fields=-active,-createdAt,-updatedAt&limit=${limit}&${queries}`
 		);
 		return res.data;
 	} catch (error) {
@@ -58,19 +58,31 @@ export const getSearchResultPopup = async (searchResult: string) => {
 	}
 };
 
-export const getSearchResultProducts = async (queries: string) => {
+export const getSearchResultProducts = async (
+	queries: string,
+	link: string,
+	limit: string
+) => {
 	try {
-		const response = await axios.get(`api/v1/products/search?${queries}`);
+		const response = await axios.get(
+			link || `api/v1/products/search?${queries}&limit=${limit}`
+		);
 		return response.data;
 	} catch (error) {
 		if (isAxiosError(error)) return error;
 	}
 };
 
-export const getProductByBrand = async (slug: string, queries: string) => {
+export const getProductByBrand = async (
+	slug: string,
+	queries: string,
+	link: string,
+	limit: string
+) => {
 	try {
 		const response = await axios.get(
-			`api/v1/products/brand/${slug}?fields=-active,-createdAt,-updatedAt&${queries}`
+			link ||
+				`api/v1/products/brand/${slug}?fields=-active,-createdAt,-updatedAt&${queries}&limit=${limit}`
 		);
 		return response.data;
 	} catch (error) {

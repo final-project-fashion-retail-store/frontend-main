@@ -19,8 +19,6 @@ type Stores = {
 
 	isGettingProducts: boolean;
 	isGettingBestSellingProducts: boolean;
-	isGettingProductByCategory: boolean;
-	isGettingProductBySubcategory: boolean;
 	isGettingSearchResultPopup: boolean;
 
 	getProducts: (featuredProduct?: boolean | '') => void;
@@ -38,8 +36,13 @@ type Stores = {
 		queries?: string
 	) => void;
 	getSearchResultPopup: (searchResult: string) => void;
-	getProductBySearch: (queries: string) => void;
-	getProductByBrand: (slug: string, queries?: string) => void;
+	getProductBySearch: (queries: string, link?: string, limit?: string) => void;
+	getProductByBrand: (
+		slug: string,
+		queries?: string,
+		link?: string,
+		limit?: string
+	) => void;
 };
 
 const useProductStore = create<Stores>((set) => ({
@@ -69,9 +72,9 @@ const useProductStore = create<Stores>((set) => ({
 		}
 	},
 
-	async getProductByCategory(slug = '', link = '', limit = '1', queries = '') {
+	async getProductByCategory(slug = '', link = '', limit = '12', queries = '') {
 		try {
-			set({ isGettingProductByCategory: true });
+			set({ isGettingProducts: true });
 			const res = await getProductByCategory(slug, link, limit, queries);
 
 			set({
@@ -84,7 +87,7 @@ const useProductStore = create<Stores>((set) => ({
 				console.log(err);
 			}
 		} finally {
-			set({ isGettingProductByCategory: false });
+			set({ isGettingProducts: false });
 		}
 	},
 
@@ -96,7 +99,7 @@ const useProductStore = create<Stores>((set) => ({
 		queries = ''
 	) {
 		try {
-			set({ isGettingProductBySubcategory: true });
+			set({ isGettingProducts: true });
 			const res = await getProductBySubcategory(
 				categorySlug,
 				subcategorySlug,
@@ -114,7 +117,7 @@ const useProductStore = create<Stores>((set) => ({
 				console.log(err);
 			}
 		} finally {
-			set({ isGettingProductBySubcategory: false });
+			set({ isGettingProducts: false });
 		}
 	},
 
@@ -132,10 +135,10 @@ const useProductStore = create<Stores>((set) => ({
 		}
 	},
 
-	async getProductBySearch(queries) {
+	async getProductBySearch(queries, link = '', limit = '12') {
 		try {
 			set({ isGettingProducts: true });
-			const res = await getSearchResultProducts(queries);
+			const res = await getSearchResultProducts(queries, link, limit);
 			set({
 				products: res.data.products,
 				pagination: res.data.pagination,
@@ -150,10 +153,10 @@ const useProductStore = create<Stores>((set) => ({
 		}
 	},
 
-	async getProductByBrand(slug, queries = '') {
+	async getProductByBrand(slug, queries = '', link = '', limit = '12') {
 		try {
 			set({ isGettingProducts: true });
-			const res = await getProductByBrand(slug, queries);
+			const res = await getProductByBrand(slug, queries, link, limit);
 			set({
 				products: res.data.products,
 				pagination: res.data.pagination,
