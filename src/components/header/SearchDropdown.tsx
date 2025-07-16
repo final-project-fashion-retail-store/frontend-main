@@ -197,8 +197,9 @@ function SearchDropdown({
 													</h3>
 													<div className='space-y-2'>
 														{searchResultPopup.products.slice(0, 3).map((product) => (
-															<div
+															<Link
 																key={product._id}
+																href={`/product/${product.slug}`}
 																className='flex items-center gap-3 p-2 rounded-lg hover:bg-accent dark:hover:bg-muted-foreground/10 cursor-pointer'
 															>
 																<Image
@@ -219,7 +220,7 @@ function SearchDropdown({
 																<span className='text-sm font-medium text-purple-600'>
 																	${product.salePrice}
 																</span>
-															</div>
+															</Link>
 														))}
 													</div>
 												</div>

@@ -8,7 +8,25 @@ export const getProducts = async (featuredProduct?: boolean | '') => {
 		);
 		return response.data;
 	} catch (error) {
-		if (isAxiosError(error)) return error;
+		if (isAxiosError(error)) throw error;
+	}
+};
+
+export const getProduct = async (slug: string) => {
+	try {
+		const response = await axios.get(`api/v1/products/${slug}`);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
+	}
+};
+
+export const getRelatedProducts = async (slug: string) => {
+	try {
+		const response = await axios.get(`api/v1/products/related/${slug}`);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
 	}
 };
 
@@ -25,7 +43,7 @@ export const getProductByCategory = async (
 		);
 		return res.data;
 	} catch (error) {
-		if (isAxiosError(error)) return error;
+		if (isAxiosError(error)) throw error;
 	}
 };
 
@@ -43,7 +61,7 @@ export const getProductBySubcategory = async (
 		);
 		return res.data;
 	} catch (error) {
-		if (isAxiosError(error)) return error;
+		if (isAxiosError(error)) throw error;
 	}
 };
 
@@ -54,7 +72,7 @@ export const getSearchResultPopup = async (searchResult: string) => {
 		);
 		return response.data;
 	} catch (error) {
-		if (isAxiosError(error)) return error;
+		if (isAxiosError(error)) throw error;
 	}
 };
 
@@ -69,7 +87,7 @@ export const getSearchResultProducts = async (
 		);
 		return response.data;
 	} catch (error) {
-		if (isAxiosError(error)) return error;
+		if (isAxiosError(error)) throw error;
 	}
 };
 
@@ -86,6 +104,51 @@ export const getProductByBrand = async (
 		);
 		return response.data;
 	} catch (error) {
-		if (isAxiosError(error)) return error;
+		if (isAxiosError(error)) throw error;
+	}
+};
+
+// wishlist
+export const getProductsWishlist = async (
+	link: string,
+	limit: string,
+	params: string
+) => {
+	try {
+		const response = await axios.get(
+			link || `api/v1/wishlist?limit=${limit}&${params}`
+		);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
+	}
+};
+
+export const addProductToWishlist = async (productId: string) => {
+	try {
+		const response = await axios.post(`api/v1/wishlist`, {
+			productId,
+		});
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
+	}
+};
+
+export const removeProductFromWishlist = async (productId: string) => {
+	try {
+		const response = await axios.delete(`api/v1/wishlist/${productId}`);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
+	}
+};
+
+export const getTotalProductsWishlist = async () => {
+	try {
+		const response = await axios.get(`api/v1/wishlist/total`);
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
 	}
 };

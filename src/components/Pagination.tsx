@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 type Props = {
 	className?: string;
-	paginationPage: 'category' | 'subcategory' | 'search' | 'brand';
+	paginationPage: 'category' | 'subcategory' | 'search' | 'brand' | 'wishlist';
 	param?: { slug: string[] };
 	slug?: string;
 };
@@ -24,6 +24,7 @@ function Pagination({ className, paginationPage, param, slug }: Props) {
 		getProductBySubcategory,
 		getProductBySearch,
 		getProductByBrand,
+		getProductsWishlist,
 	] = useProductStore(
 		useShallow((state) => [
 			state.pagination,
@@ -31,6 +32,7 @@ function Pagination({ className, paginationPage, param, slug }: Props) {
 			state.getProductBySubcategory,
 			state.getProductBySearch,
 			state.getProductByBrand,
+			state.getProductsWishlist,
 		])
 	);
 	const [page, setPage] = useState(pagination?.currentPage || 1);
@@ -57,6 +59,8 @@ function Pagination({ className, paginationPage, param, slug }: Props) {
 			getProductBySearch('', pagination?.prevPage || '');
 		} else if (paginationPage === 'brand') {
 			getProductByBrand('', '', pagination?.prevPage || '');
+		} else if (paginationPage === 'wishlist') {
+			getProductsWishlist(pagination?.prevPage || '');
 		}
 	};
 
@@ -73,6 +77,8 @@ function Pagination({ className, paginationPage, param, slug }: Props) {
 			getProductBySearch('', pagination?.nextPage || '');
 		} else if (paginationPage === 'brand') {
 			getProductByBrand('', '', pagination?.nextPage || '');
+		} else if (paginationPage === 'wishlist') {
+			getProductsWishlist(pagination?.nextPage || '');
 		}
 	};
 
@@ -101,6 +107,8 @@ function Pagination({ className, paginationPage, param, slug }: Props) {
 				getProductBySearch(currentParams.toString());
 			} else if (paginationPage === 'brand') {
 				getProductByBrand(slug || '', currentParams.toString());
+			} else if (paginationPage === 'wishlist') {
+				getProductsWishlist('', currentParams.toString());
 			}
 		}
 	};

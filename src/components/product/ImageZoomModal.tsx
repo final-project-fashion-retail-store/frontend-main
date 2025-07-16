@@ -13,7 +13,7 @@ const ImageZoomModal = ({
 }: {
 	isOpen: boolean;
 	onClose: () => void;
-	images: Array<{ url: string; public_id: string }>;
+	images: Array<{ url: string }>;
 	currentIndex: number;
 	onNavigate: (index: number) => void;
 	productName: string;
@@ -138,7 +138,7 @@ const ImageZoomModal = ({
 					transition={{ duration: 0.3 }}
 				>
 					<Image
-						src={images[currentIndex]?.url || '/placeholder.svg'}
+						src={images[currentIndex]?.url || ''}
 						alt={`${productName} - Image ${currentIndex + 1}`}
 						width={800}
 						height={800}
@@ -175,7 +175,7 @@ const ImageZoomModal = ({
 									}`}
 								>
 									<Image
-										src={image.url || '/placeholder.svg'}
+										src={image.url || '/'}
 										alt={`Thumbnail ${index + 1}`}
 										width={64}
 										height={64}

@@ -51,7 +51,7 @@ const BrandCard = ({ brand, index }: Props) => {
 
 				<div className='relative z-10 flex items-center justify-center w-full h-full'>
 					<Image
-						src={brand.logo.url || '/placeholder.svg'}
+						src={brand.logo.url || ''}
 						alt={brand.name}
 						width={120}
 						height={60}

@@ -54,7 +54,7 @@ const Hero = () => {
 					/>
 				))}
 			</div>
-			<div className='px-4 relative z-10'>
+			<div className='relative z-10'>
 				<div className='grid lg:grid-cols-2 gap-12 items-center'>
 					<TextContent />
 					<Visual />

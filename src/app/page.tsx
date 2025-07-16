@@ -7,7 +7,7 @@ import Features from '@/components/home/Features';
 const Home = () => {
 	return (
 		<div className='size-full'>
-			<div className='container mx-auto '>
+			<div className='container mx-auto py-8 px-2 2xl:px-6 3xl:px-0'>
 				{/* Hero Section */}
 				<Hero />
 				{/* Categories Section */}

@@ -174,9 +174,9 @@ const ProfileInformation = () => {
 								height={240}
 								priority
 								showFallback={!authUser.avatar.url}
-								className={
+								className={`${
 									isUploadingImages || isDestroyingImages ? 'animate-pulse' : ''
-								}
+								} size-full`}
 							/>
 						</div>
 						<Button

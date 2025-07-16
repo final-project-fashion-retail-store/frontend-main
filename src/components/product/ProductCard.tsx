@@ -1,30 +1,84 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Product } from '@/types';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
+import Overlay from '@/components/ui/overlay';
+import useProductStore from '@/stores/productStore';
+import { Product, RelatedProduct } from '@/types';
+import { Heart, ShoppingCart, Star, X } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import { useShallow } from 'zustand/shallow';
 
 type Props = {
-	product: Product;
+	product: Product | RelatedProduct;
+	wishlist?: boolean;
 };
 
-const ProductCard = ({ product }: Props) => {
+const ProductCard = ({ product, wishlist = false }: Props) => {
+	const [
+		isAddingProductToWishlist,
+		isRemovingProductFromWishlist,
+		addProductToWishlist,
+		removeProductFromWishlist,
+		getTotalProductsWishlist,
+	] = useProductStore(
+		useShallow((state) => [
+			state.isAddingProductToWishlist,
+			state.isRemovingProductFromWishlist,
+			state.addProductToWishlist,
+			state.removeProductFromWishlist,
+			state.getTotalProductsWishlist,
+		])
+	);
 	const [isHovered, setIsHovered] = useState(false);
+
+	const router = useRouter();
 
 	// Get the appropriate image based on hover state
 	const currentImage =
 		isHovered && product.images[1]
 			? product.images[1].url
 			: product.images[0].url;
+
+	const handleClickCard = () => {
+		router.push(`/product/${product.slug}`);
+	};
+
+	const handleClickWishlist = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+
+		const result = await addProductToWishlist(product._id);
+		if (result.success) {
+			toast.success(result.message);
+			await getTotalProductsWishlist();
+		} else {
+			toast.error(result.message);
+		}
+	};
+
+	const handleClickRemoveWishlist = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+
+		const result = await removeProductFromWishlist(product._id);
+		if (result.success) {
+			toast.success(result.message);
+			await getTotalProductsWishlist();
+		} else {
+			toast.error(result.message);
+		}
+	};
 	return (
 		<Card
-			className='group hover:shadow-lg transition-shadow duration-300 overflow-hidden p-0 gap-0 cursor-pointer'
+			className='group hover:shadow-lg transition-shadow duration-300 overflow-hidden p-0 gap-0 cursor-pointer flex flex-col h-full'
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
-			onClick={() => console.log(product.name)}
+			onClick={handleClickCard}
 		>
+			{(isAddingProductToWishlist || isRemovingProductFromWishlist) && (
+				<Overlay loading />
+			)}
 			<div className='relative'>
 				<Image
 					src={currentImage || ''}
@@ -37,17 +91,6 @@ const ProductCard = ({ product }: Props) => {
 
 				{/* Badges */}
 				<div className='absolute top-3 left-3 flex flex-col gap-1'>
-					{/* {product.isNew && (
-						<Badge className='bg-green-600 text-white text-xs'>New</Badge>
-					)}
-					{product.onSale && (
-						<Badge
-							variant='destructive'
-							className='text-xs'
-						>
-							Sale
-						</Badge>
-					)} */}
 					{!product.inStock && (
 						<Badge
 							variant='secondary'
@@ -60,19 +103,31 @@ const ProductCard = ({ product }: Props) => {
 
 				{/* Action buttons */}
 				<div className='absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity'>
-					<Button
-						size='sm'
-						variant='secondary'
-						className='w-8 h-8 p-0 rounded-full'
-					>
-						<Heart className='w-4 h-4' />
-					</Button>
+					{!wishlist ? (
+						<Button
+							size='sm'
+							variant='secondary'
+							className='w-8 h-8 p-0 rounded-full'
+							onClick={handleClickWishlist}
+						>
+							<Heart className='w-4 h-4' />
+						</Button>
+					) : (
+						<Button
+							size='sm'
+							variant='secondary'
+							className='w-8 h-8 p-0 rounded-full'
+							onClick={handleClickRemoveWishlist}
+						>
+							<X className='w-4 h-4' />
+						</Button>
+					)}
 				</div>
 
 				{/* Quick add to cart */}
 				<div className='absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity'>
 					<Button
-						className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+						className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
 						disabled={!product.inStock}
 						onClick={(e) => {
 							e.stopPropagation();
@@ -85,10 +140,12 @@ const ProductCard = ({ product }: Props) => {
 				</div>
 			</div>
 
-			<CardContent className='p-2 sm:p-4'>
-				<div className='space-y-1 sm:space-y-2'>
+			<CardContent className='p-2 sm:p-4 flex-1 flex flex-col'>
+				<div className='space-y-1 sm:space-y-2 flex-1'>
 					<p className='text-xs sm:text-sm text-purple-600 font-medium'>
-						{product.brand.name}
+						{Array.isArray(product.brand)
+							? product.brand[0]?.name
+							: product.brand.name}
 					</p>
 					<h3 className='font-semibold text-sm sm:text-base leading-tight line-clamp-2'>
 						{product.name}
@@ -126,20 +183,22 @@ const ProductCard = ({ product }: Props) => {
 					</div>
 
 					{/* Colors - Hide on mobile */}
-					<div className='hidden sm:flex items-center gap-1'>
-						{Object.keys(product.colorImages).map((color) => (
-							<div
-								key={color}
-								className='w-4 h-4 rounded-full border border-gray-300'
-								style={{ backgroundColor: color.toLowerCase() }}
-								title={color}
-							/>
-						))}
-						{Object.keys(product.colorImages).length > 4 && (
-							<span className='text-xs text-gray-500'>
-								+{Object.keys(product.colorImages).length - 4}
-							</span>
-						)}
+					<div className='hidden sm:flex items-center gap-1 mt-auto'>
+						{'colorImages' in product &&
+							Object.keys(product.colorImages).map((color) => (
+								<div
+									key={color}
+									className='w-4 h-4 rounded-full border border-gray-300'
+									style={{ backgroundColor: color.toLowerCase() }}
+									title={color}
+								/>
+							))}
+						{'colorImages' in product &&
+							Object.keys(product.colorImages).length > 4 && (
+								<span className='text-xs text-gray-500'>
+									+{Object.keys(product.colorImages).length - 4}
+								</span>
+							)}
 					</div>
 				</div>
 			</CardContent>

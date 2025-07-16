@@ -17,3 +17,4 @@ export type { Product } from './Product';
 export type { ProductVariant } from './ProductVariant';
 export type { Filter } from './Filter';
 export type { SearchResultPopup } from './SearchResultPopup';
+export type { RelatedProduct } from './RelatedProduct';

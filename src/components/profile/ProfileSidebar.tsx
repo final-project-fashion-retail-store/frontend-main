@@ -33,6 +33,7 @@ const ProfileSidebar = ({ activeTab, setActiveTab }: Props) => {
 								height={240}
 								priority
 								showFallback={!authUser.avatar.url}
+								className='size-full'
 							/>
 						</div>
 					</div>

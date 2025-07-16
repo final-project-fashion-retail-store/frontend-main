@@ -31,7 +31,7 @@ const Category = () => {
 			ref={categoriesRef}
 			className='py-20'
 		>
-			<div className='px-4'>
+			<div>
 				<motion.div
 					className='text-center mb-16'
 					initial={{ opacity: 0, y: 30 }}

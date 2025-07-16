@@ -27,8 +27,10 @@ import Navigation from '@/components/header/navigation/Navigation';
 import MobileNavigation from './mobileNavigation/MobileNavigation';
 import ImageCustom from '@/components/custom/image-custom';
 import useCommonStore from '@/stores/commonStore';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import SearchDropdown from '@/components/header/SearchDropdown';
+import { Badge } from '@/components/ui/badge';
+import useProductStore from '@/stores/productStore';
 
 const dropdownUserMenuItems = [
 	{
@@ -69,10 +71,18 @@ const Header = () => {
 		])
 	);
 
+	const [totalWishlist, getTotalProductsWishlist] = useProductStore(
+		useShallow((state) => [state.totalWishlist, state.getTotalProductsWishlist])
+	);
+
 	const setForm = useCommonStore((state) => state.setForm);
 	const router = useRouter();
 
-	// useOAuthHandler();
+	useEffect(() => {
+		if (authUser) {
+			getTotalProductsWishlist();
+		}
+	}, [authUser, getTotalProductsWishlist]);
 
 	const handleClickLogout = async () => {
 		if (isLoggingOut) return;
@@ -158,7 +168,17 @@ const Header = () => {
 										))}
 									</DropdownMenuContent>
 								</DropdownMenu>
-								<Heart className='cursor-pointer size-6' />
+								<Link
+									href={'/wishlist'}
+									className='cursor-pointer size-6 relative'
+								>
+									<Heart className='size-full' />
+									{totalWishlist > 0 && (
+										<Badge className='absolute -top-3 -right-2 size-4 rounded-full'>
+											{totalWishlist}
+										</Badge>
+									)}
+								</Link>
 								<ShoppingBag className='cursor-pointer size-6' />
 							</div>
 						) : (
