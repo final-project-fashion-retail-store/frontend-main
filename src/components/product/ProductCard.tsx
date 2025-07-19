@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Overlay from '@/components/ui/overlay';
 import useProductStore from '@/stores/productStore';
 import { Product, RelatedProduct } from '@/types';
-import { Heart, ShoppingCart, Star, X } from 'lucide-react';
+import { Heart, Star, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -33,6 +33,7 @@ const ProductCard = ({ product, wishlist = false }: Props) => {
 		])
 	);
 	const [isHovered, setIsHovered] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const router = useRouter();
 
@@ -48,7 +49,7 @@ const ProductCard = ({ product, wishlist = false }: Props) => {
 
 	const handleClickWishlist = async (e: React.MouseEvent) => {
 		e.stopPropagation();
-
+		setIsLoading(true);
 		const result = await addProductToWishlist(product._id);
 		if (result.success) {
 			toast.success(result.message);
@@ -56,11 +57,12 @@ const ProductCard = ({ product, wishlist = false }: Props) => {
 		} else {
 			toast.error(result.message);
 		}
+		setIsLoading(false);
 	};
 
 	const handleClickRemoveWishlist = async (e: React.MouseEvent) => {
 		e.stopPropagation();
-
+		setIsLoading(true);
 		const result = await removeProductFromWishlist(product._id);
 		if (result.success) {
 			toast.success(result.message);
@@ -68,7 +70,9 @@ const ProductCard = ({ product, wishlist = false }: Props) => {
 		} else {
 			toast.error(result.message);
 		}
+		setIsLoading(false);
 	};
+
 	return (
 		<Card
 			className='group hover:shadow-lg transition-shadow duration-300 overflow-hidden p-0 gap-0 cursor-pointer flex flex-col h-full'
@@ -76,9 +80,8 @@ const ProductCard = ({ product, wishlist = false }: Props) => {
 			onMouseLeave={() => setIsHovered(false)}
 			onClick={handleClickCard}
 		>
-			{(isAddingProductToWishlist || isRemovingProductFromWishlist) && (
-				<Overlay loading />
-			)}
+			{(isAddingProductToWishlist || isRemovingProductFromWishlist) &&
+				isLoading && <Overlay loading />}
 			<div className='relative'>
 				<Image
 					src={currentImage || ''}
@@ -122,21 +125,6 @@ const ProductCard = ({ product, wishlist = false }: Props) => {
 							<X className='w-4 h-4' />
 						</Button>
 					)}
-				</div>
-
-				{/* Quick add to cart */}
-				<div className='absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity'>
-					<Button
-						className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-						disabled={!product.inStock}
-						onClick={(e) => {
-							e.stopPropagation();
-							console.log('Add to cart clicked');
-						}}
-					>
-						<ShoppingCart className='w-4 h-4 mr-2' />
-						{product.inStock ? 'Add to Cart' : 'Out of Stock'}
-					</Button>
 				</div>
 			</div>
 

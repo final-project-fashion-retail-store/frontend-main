@@ -31,6 +31,7 @@ import { Suspense, useEffect } from 'react';
 import SearchDropdown from '@/components/header/SearchDropdown';
 import { Badge } from '@/components/ui/badge';
 import useProductStore from '@/stores/productStore';
+import useCartStore from '@/stores/cartStore';
 
 const dropdownUserMenuItems = [
 	{
@@ -74,6 +75,9 @@ const Header = () => {
 	const [totalWishlist, getTotalProductsWishlist] = useProductStore(
 		useShallow((state) => [state.totalWishlist, state.getTotalProductsWishlist])
 	);
+	const [totalCartProducts, getTotalCartProducts] = useCartStore(
+		useShallow((state) => [state.totalCartProducts, state.getTotalCartProducts])
+	);
 
 	const setForm = useCommonStore((state) => state.setForm);
 	const router = useRouter();
@@ -81,8 +85,9 @@ const Header = () => {
 	useEffect(() => {
 		if (authUser) {
 			getTotalProductsWishlist();
+			getTotalCartProducts();
 		}
-	}, [authUser, getTotalProductsWishlist]);
+	}, [authUser, getTotalCartProducts, getTotalProductsWishlist]);
 
 	const handleClickLogout = async () => {
 		if (isLoggingOut) return;
@@ -179,7 +184,17 @@ const Header = () => {
 										</Badge>
 									)}
 								</Link>
-								<ShoppingBag className='cursor-pointer size-6' />
+								<Link
+									href={'/cart'}
+									className='cursor-pointer size-6 relative'
+								>
+									<ShoppingBag className='cursor-pointer size-6' />
+									{totalCartProducts > 0 && (
+										<Badge className='absolute -top-3 -right-2 size-4 rounded-full'>
+											{totalCartProducts}
+										</Badge>
+									)}
+								</Link>
 							</div>
 						) : (
 							<div>

@@ -20,6 +20,7 @@ import useProductStore from '@/stores/productStore';
 import { useShallow } from 'zustand/shallow';
 import Overlay from '@/components/ui/overlay';
 import { toast } from 'sonner';
+import useCartStore from '@/stores/cartStore';
 
 type Props = {
 	selectedProduct: Product | null;
@@ -38,6 +39,14 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 			state.getTotalProductsWishlist,
 		])
 	);
+	const [isAddingProductToCart, addProductToCart, getTotalCartProducts] =
+		useCartStore(
+			useShallow((state) => [
+				state.isAddingProductToCart,
+				state.addProductToCart,
+				state.getTotalCartProducts,
+			])
+		);
 	const [selectedColor, setSelectedColor] = useState('');
 	const [selectedSize, setSelectedSize] = useState('');
 	const [quantity, setQuantity] = useState(1);
@@ -110,10 +119,25 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 		}
 	};
 
+	const handleClickAddToCart = async () => {
+		const result = await addProductToCart(
+			selectedProduct?._id || '',
+			selectedVariant?._id || '',
+			quantity
+		);
+
+		if (result.success) {
+			await getTotalCartProducts();
+			toast.success(result.message);
+		} else {
+			toast.error(result.message);
+		}
+	};
+
 	return (
 		<div className='space-y-6'>
 			{/* Brand & Title */}
-			{isAddingProductToWishlist && <Overlay loading />}
+			{(isAddingProductToWishlist || isAddingProductToCart) && <Overlay loading />}
 			<div className='space-y-2'>
 				<div className='flex items-center gap-3'>
 					{selectedProduct && (
@@ -302,6 +326,7 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 						<Button
 							disabled={!selectedSize || !isInStock}
 							className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-semibold'
+							onClick={handleClickAddToCart}
 						>
 							<ShoppingCart className='w-5 h-5 mr-2' />
 							{!selectedSize

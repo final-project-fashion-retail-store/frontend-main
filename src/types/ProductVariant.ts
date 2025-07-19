@@ -7,4 +7,5 @@ export type ProductVariant = {
 	color: string;
 	size: string;
 	inventory: number;
+	reservedInventory: number;
 };
