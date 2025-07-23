@@ -106,6 +106,10 @@ const Header = () => {
 		return null;
 	};
 
+	useEffect(() => {
+		console.log(totalCartProducts);
+	}, [totalCartProducts]);
+
 	return (
 		<div className='max-lg:border-b lg:flex sticky top-0 left-0 right-0 w-full lg:pt-6 flex-col justify-center lg:space-y-4 z-[50] bg-background'>
 			<Suspense fallback={null}>

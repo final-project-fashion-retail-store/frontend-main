@@ -21,3 +21,6 @@ export type { RelatedProduct } from './RelatedProduct';
 
 // Cart
 export type { CartItem } from './CartItem';
+
+// Order
+export type { CreateOrder } from './CreateOrder';

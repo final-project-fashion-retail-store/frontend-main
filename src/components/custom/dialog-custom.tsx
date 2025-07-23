@@ -9,7 +9,7 @@ import {
 type Props = {
 	isOpen: boolean;
 	setIsOpenChange: (open: boolean) => void;
-	dialogTitle: React.ReactNode;
+	dialogTitle: React.ReactNode | string;
 	body: React.ReactNode;
 };
 

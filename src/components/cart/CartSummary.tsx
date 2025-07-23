@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import calculateOrderTotals from '@/lib/calculateOrderTotals';
 import { CartItem } from '@/types';
 import {
 	ArrowRight,
@@ -9,6 +10,7 @@ import {
 	ShoppingCart,
 	Truck,
 } from 'lucide-react';
+import Link from 'next/link';
 import React, { useMemo } from 'react';
 
 type Props = {
@@ -18,48 +20,7 @@ type Props = {
 
 const CartSummary = ({ availableItems, unavailableItems }: Props) => {
 	const { subtotal, savings, shipping, tax, total } = useMemo(() => {
-		if (!availableItems || availableItems.length === 0) {
-			return {
-				subtotal: 0,
-				savings: 0,
-				shipping: 0,
-				tax: 0,
-				total: 0,
-			};
-		}
-
-		// Calculate subtotal based on sale prices (or regular prices if no sale)
-		const calculatedSubtotal = availableItems.reduce((sum, item) => {
-			const itemPrice = item.product.salePrice || item.product.price;
-			return sum + itemPrice * item.quantity;
-		}, 0);
-
-		// Calculate savings (difference between regular price and sale price)
-		const calculatedSavings = availableItems.reduce((sum, item) => {
-			if (item.product.salePrice && item.product.salePrice < item.product.price) {
-				const savingsPerItem = item.product.price - item.product.salePrice;
-				return sum + savingsPerItem * item.quantity;
-			}
-			return sum;
-		}, 0);
-
-		// Shipping is free by default
-		const calculatedShipping = 0;
-
-		// Tax is 10% of subtotal
-		const calculatedTax = calculatedSubtotal * 0.1;
-
-		// Total = subtotal + shipping + tax
-		const calculatedTotal =
-			calculatedSubtotal + calculatedShipping + calculatedTax;
-
-		return {
-			subtotal: calculatedSubtotal,
-			savings: calculatedSavings,
-			shipping: calculatedShipping,
-			tax: calculatedTax,
-			total: calculatedTotal,
-		};
+		return calculateOrderTotals(availableItems);
 	}, [availableItems]);
 
 	const isCheckingOut = false; // Placeholder for checkout state
@@ -146,12 +107,14 @@ const CartSummary = ({ availableItems, unavailableItems }: Props) => {
 
 				{/* Checkout Button */}
 				<Button
-					// onClick={handleCheckout}
+					asChild
 					disabled={isCheckingOut || availableItems.length === 0}
 					className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-semibold disabled:opacity-50'
 				>
-					Proceed to Checkout
-					<ArrowRight className='w-5 h-5 ml-2' />
+					<Link href={'/payment'}>
+						Proceed to Checkout
+						<ArrowRight className='w-5 h-5 ml-2' />
+					</Link>
 				</Button>
 
 				{/* Features */}

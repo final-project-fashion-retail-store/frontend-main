@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import CartItemUnavailable from '@/components/cart/CartItemUnavailable';
 import CartSummary from '@/components/cart/CartSummary';
 import Overlay from '@/components/ui/overlay';
+import classifyCartItems from '@/lib/classifyCartItems';
 
 const CartContainer = () => {
 	const [totalCartProducts, cartItems, getCartItems, isUpdatingCartItem] =
@@ -39,42 +40,10 @@ const CartContainer = () => {
 			return;
 		}
 
-		const available: CartItemType[] = [];
-		const unavailable: CartItemType[] = [];
+		const { availableItems, unavailableItems } = classifyCartItems(cartItems);
 
-		cartItems.forEach((item) => {
-			// Find the specific variant based on variantId
-			const variant = item.product.variants.find((v) => v._id === item.variantId);
-
-			if (variant) {
-				// Check if inventory is sufficient for the requested quantity
-				const availableInventory = variant.inventory - variant.reservedInventory;
-				const isAvailable = availableInventory >= item.quantity;
-
-				if (isAvailable) {
-					available.push({
-						...item,
-						available: true,
-						maxQuantity: availableInventory,
-					});
-				} else {
-					unavailable.push({
-						...item,
-						available: false,
-						maxQuantity: availableInventory,
-					});
-				}
-			} else {
-				unavailable.push({
-					...item,
-					available: false,
-					maxQuantity: 0,
-				});
-			}
-		});
-
-		setAvailableItems(available);
-		setUnavailableItems(unavailable);
+		setAvailableItems(availableItems);
+		setUnavailableItems(unavailableItems);
 	}, [cartItems]);
 
 	return (
