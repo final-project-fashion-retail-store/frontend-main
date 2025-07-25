@@ -43,7 +43,7 @@ const DetailedProductTabs = ({ selectedProduct }: Props) => {
 					onValueChange={setActiveTab}
 					className='w-full'
 				>
-					<TabsList className='w-full bg-muted-foreground/10 '>
+					<TabsList className='w-full bg-muted-foreground/10'>
 						{tabData.map((tab) => (
 							<TabsTrigger
 								key={tab.value}

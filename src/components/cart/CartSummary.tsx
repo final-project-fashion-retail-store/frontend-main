@@ -1,8 +1,19 @@
+import {
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import calculateOrderTotals from '@/lib/calculateOrderTotals';
+import useAuthStore from '@/stores/authStore';
 import { CartItem } from '@/types';
+import { AlertDialog } from '@radix-ui/react-alert-dialog';
 import {
 	ArrowRight,
 	RotateCcw,
@@ -11,7 +22,9 @@ import {
 	Truck,
 } from 'lucide-react';
 import Link from 'next/link';
-import React, { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 type Props = {
 	availableItems: CartItem[];
@@ -19,11 +32,31 @@ type Props = {
 };
 
 const CartSummary = ({ availableItems, unavailableItems }: Props) => {
+	const [addresses, getAddresses] = useAuthStore(
+		useShallow((state) => [state.addresses, state.getAddresses])
+	);
+	const [isOpen, setIsOpen] = useState(false);
+
+	const router = useRouter();
+
+	useEffect(() => {
+		if (!addresses) {
+			getAddresses();
+		}
+	}, [addresses, getAddresses]);
+
 	const { subtotal, savings, shipping, tax, total } = useMemo(() => {
 		return calculateOrderTotals(availableItems);
 	}, [availableItems]);
 
-	const isCheckingOut = false; // Placeholder for checkout state
+	const handleClickCheckout = () => {
+		if (!addresses) return;
+		if (addresses.length === 0) {
+			setIsOpen(true);
+		} else if (addresses.length > 0) {
+			router.push('/payment');
+		}
+	};
 
 	return (
 		<div className='lg:col-span-1 order-first lg:order-last'>
@@ -107,14 +140,12 @@ const CartSummary = ({ availableItems, unavailableItems }: Props) => {
 
 				{/* Checkout Button */}
 				<Button
-					asChild
-					disabled={isCheckingOut || availableItems.length === 0}
+					disabled={availableItems.length === 0}
 					className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-semibold disabled:opacity-50'
+					onClick={handleClickCheckout}
 				>
-					<Link href={'/payment'}>
-						Proceed to Checkout
-						<ArrowRight className='w-5 h-5 ml-2' />
-					</Link>
+					Proceed to Checkout
+					<ArrowRight className='w-5 h-5 ml-2' />
 				</Button>
 
 				{/* Features */}
@@ -133,6 +164,27 @@ const CartSummary = ({ availableItems, unavailableItems }: Props) => {
 					</div>
 				</div>
 			</div>
+
+			{/* Alert dialog show when customer doesn't have an address */}
+			<AlertDialog
+				open={isOpen}
+				onOpenChange={setIsOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							No delivery address found. Please add one in your profile.
+						</AlertDialogTitle>
+						<AlertDialogDescription>{''}</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction asChild>
+							<Link href={'/profile'}>Add Address</Link>
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 };

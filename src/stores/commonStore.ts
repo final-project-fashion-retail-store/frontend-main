@@ -166,6 +166,7 @@ const useCommonStore = create<Stores>((set) => ({
 			provinces: null,
 			districts: null,
 			wards: null,
+			uploadedImages: null,
 		});
 	},
 }));

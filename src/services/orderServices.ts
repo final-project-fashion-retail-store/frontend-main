@@ -10,3 +10,13 @@ export const createOrderFromCart = async (data: CreateOrder) => {
 		throw error;
 	}
 };
+
+export const getOrders = async () => {
+	try {
+		const response = await axios.get('api/v1/orders');
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching orders:', error);
+		throw error;
+	}
+};
