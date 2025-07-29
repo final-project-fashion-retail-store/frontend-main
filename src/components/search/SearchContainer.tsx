@@ -198,6 +198,7 @@ const SearchContainer = () => {
 				setIsMobileFiltersOpen={setIsMobileFiltersOpen}
 				setSortBy={setSortBy}
 				getActiveFiltersCount={getActiveFiltersCount}
+				onSortChange={handleFilterChange}
 			/>
 			<div className='flex gap-8'>
 				<div className='hidden lg:block w-64 flex-shrink-0'>

@@ -2,8 +2,8 @@ import {
 	Carousel,
 	CarouselContent,
 	CarouselItem,
-	CarouselNext,
-	CarouselPrevious,
+	// CarouselNext,
+	// CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Product } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';

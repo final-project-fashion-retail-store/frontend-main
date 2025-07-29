@@ -31,4 +31,8 @@ export type Order = {
 	updatedAt: string;
 	reviewExpired: boolean;
 	orderNumber: string;
+	orderHistories: {
+		status: string;
+		timestamp: string;
+	}[];
 };

@@ -13,12 +13,17 @@ import {
 	MapPin,
 	Package,
 	Star,
+	Truck,
 	XCircle,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import useOrderStore from '@/stores/orderStore';
+import { useShallow } from 'zustand/shallow';
+import { toast } from 'sonner';
+import AlertDialogCustom from '@/components/custom/alert-dialog-custom';
 
 const getStatusConfig = (status: string) => {
 	switch (status) {
@@ -33,6 +38,12 @@ const getStatusConfig = (status: string) => {
 				label: 'Processing',
 				color: 'bg-blue-100 text-blue-800 border-blue-200',
 				icon: Package,
+			};
+		case 'shipped':
+			return {
+				label: 'Shipped',
+				color: 'bg-purple-100 text-purple-800 border-purple-200',
+				icon: Truck,
 			};
 		case 'delivered':
 			return {
@@ -72,6 +83,7 @@ type Props = {
 };
 
 const OrderCard = ({ order, isExpanded, onToggleExpansion }: Props) => {
+	const cancelOrder = useOrderStore(useShallow((state) => state.cancelOrder));
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedItem, setSelectedItem] = useState<{
 		product: {
@@ -98,6 +110,24 @@ const OrderCard = ({ order, isExpanded, onToggleExpansion }: Props) => {
 		setIsOpen(true);
 	};
 
+	const handleClickCancelOrder = async (orderId: string) => {
+		const result = await cancelOrder(orderId);
+
+		if (result.success) {
+			toast.success(result.message);
+		} else {
+			toast.error(result.message);
+		}
+	};
+
+	const { placeTime, stateTime } = useMemo(() => {
+		const stateTime = formatTime(
+			order.orderHistories[order.orderHistories.length - 1].timestamp
+		);
+		const placeTime = formatTime(order.createdAt);
+		return { placeTime, stateTime };
+	}, [order]);
+
 	return (
 		<Card className='overflow-hidden hover:shadow-lg transition-shadow'>
 			<CardHeader className='pb-4'>
@@ -108,7 +138,9 @@ const OrderCard = ({ order, isExpanded, onToggleExpansion }: Props) => {
 						</CardTitle>
 						<div className='flex items-center gap-2 text-sm text-muted-foreground mt-1'>
 							<Calendar className='w-4 h-4' />
-							<span>Placed on {formatTime(order.createdAt)}</span>
+							<span>
+								Placed {!placeTime.includes('ago') && 'on'} {placeTime}
+							</span>
 						</div>
 					</div>
 					<Badge className={`${statusConfig.color} border`}>
@@ -251,24 +283,31 @@ const OrderCard = ({ order, isExpanded, onToggleExpansion }: Props) => {
 
 				{/* Order Actions */}
 				<div className='flex gap-2 pt-4 border-t'>
-					{order.status !== 'delivered' && (
-						<Button
-							variant='destructive'
-							size='sm'
-							// onClick={() => onCancelOrder(order._id)}
+					{!['delivered', 'shipped', 'cancelled'].includes(order.status) && (
+						<AlertDialogCustom
+							asChild
+							title='Cancel Order'
+							description='Are you sure you want to cancel this order?'
+							handler={[() => handleClickCancelOrder(order._id)]}
 						>
-							Cancel Order
-						</Button>
+							<Button
+								variant='destructive'
+								size='sm'
+							>
+								Cancel Order
+							</Button>
+						</AlertDialogCustom>
 					)}
 				</div>
 
 				{/* Delivery Date */}
-				{order.updatedAt && (
+				{order.orderHistories[order.orderHistories.length - 1].status ===
+					'delivered' && (
 					<div className='bg-green-50 border border-green-200 rounded-lg p-3'>
 						<div className='flex items-center gap-2 text-green-800'>
 							<CheckCircle className='w-4 h-4' />
 							<span className='text-sm font-medium'>
-								Delivered on {formatTime(order.updatedAt)}
+								Delivered {!stateTime.includes('ago') && 'on'} {stateTime}
 							</span>
 						</div>
 					</div>

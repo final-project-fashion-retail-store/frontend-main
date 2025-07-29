@@ -1,92 +1,61 @@
+import { AnimatePresence } from 'framer-motion';
+
 import DetailedProductReviewItem from '@/components/product/DetailedProductReviewItem';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import useReviewStore from '@/stores/reviewStore';
 import { Product } from '@/types';
 import { Star } from 'lucide-react';
-
-// Mock reviews data
-const reviewsData = [
-	{
-		id: 1,
-		user: {
-			name: 'Alex Johnson',
-			avatar:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1749311234/cpihscp3fiuogmexx6sa.jpg',
-			verified: true,
-		},
-		rating: 5,
-		title: 'Perfect for training sessions',
-		comment:
-			'This track top is exactly what I needed for my morning runs. The fabric is incredibly lightweight yet warm enough for cooler days. The fit is perfect and the quality feels premium.',
-		date: '2024-12-15',
-		helpful: 23,
-		size: 'L',
-		color: 'Green',
-		verified_purchase: true,
-	},
-	{
-		id: 2,
-		user: {
-			name: 'Sarah Chen',
-			avatar:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1749311234/cpihscp3fiuogmexx6sa.jpg',
-			verified: true,
-		},
-		rating: 4,
-		title: 'Great quality, runs slightly large',
-		comment:
-			'Love the design and the material feels great. Only issue is it runs a bit large - I probably should have ordered a size down. But overall very happy with the purchase.',
-		date: '2024-12-10',
-		helpful: 18,
-		size: 'M',
-		color: 'Green',
-		verified_purchase: true,
-	},
-	{
-		id: 3,
-		user: {
-			name: 'Mike Rodriguez',
-			avatar:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1749311234/cpihscp3fiuogmexx6sa.jpg',
-			verified: false,
-		},
-		rating: 5,
-		title: 'Excellent for layering',
-		comment:
-			'This is my go-to piece for layering. Works great over a t-shirt or under a jacket. The zip quality is excellent and the hood fits perfectly. Highly recommend!',
-		date: '2024-12-08',
-		helpful: 31,
-		size: 'XL',
-		color: 'Green',
-		verified_purchase: true,
-	},
-	{
-		id: 4,
-		user: {
-			name: 'Emma Wilson',
-			avatar:
-				'https://res.cloudinary.com/dx2akttki/image/upload/v1749311234/cpihscp3fiuogmexx6sa.jpg',
-			verified: true,
-		},
-		rating: 4,
-		title: 'Stylish and comfortable',
-		comment:
-			"Really like the minimalist design. It's comfortable for both workouts and casual wear. The green color is more vibrant than expected, which I love.",
-		date: '2024-12-05',
-		helpful: 12,
-		size: 'S',
-		color: 'Green',
-		verified_purchase: true,
-	},
-];
+import { useEffect, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
+import ReviewImageModal from '@/components/product/ReviewImageModal';
+import Loader from '@/components/Loader';
+import Overlay from '@/components/ui/overlay';
+import useCommonStore from '@/stores/commonStore';
 
 type Props = {
 	selectedProduct: Product | null;
 };
 
 const DetailedProductReviews = ({ selectedProduct }: Props) => {
+	const [
+		isGettingReviews,
+		isUpdatingReview,
+		reviews,
+		pagination,
+		getAllReviews,
+	] = useReviewStore(
+		useShallow((state) => [
+			state.isGettingReviews,
+			state.isUpdatingReview,
+			state.reviews,
+			state.pagination,
+			state.getAllReviews,
+		])
+	);
+	const [isUploadingImages, isDestroyingImages] = useCommonStore(
+		useShallow((state) => [state.isUploadingImages, state.isDestroyingImages])
+	);
+	const [showReviewImageModal, setShowReviewImageModal] = useState(false);
+	const [selectedReviewImages, setSelectedReviewImages] = useState<
+		Array<{ url: string }>
+	>([]);
+	const [reviewImageIndex, setReviewImageIndex] = useState(0);
+	const [selectedReviewerName, setSelectedReviewerName] = useState('');
+
+	useEffect(() => {
+		if (!selectedProduct) return;
+		getAllReviews(selectedProduct._id || '');
+	}, [getAllReviews, selectedProduct]);
+
+	if (isGettingReviews) {
+		return <Loader />;
+	}
+
 	return (
 		<div className='mb-16'>
+			{(isUploadingImages || isDestroyingImages) && <Overlay loading />}
+			{isUpdatingReview && <Overlay />}
 			<Card>
 				<CardContent className='p-6'>
 					<div className='flex max-sm:flex-col items-center justify-between mb-6'>
@@ -101,7 +70,7 @@ const DetailedProductReviews = ({ selectedProduct }: Props) => {
 												className={`w-5 h-5 ${
 													i < Math.floor(selectedProduct?.averageRating || 0)
 														? 'text-yellow-400 fill-current'
-														: 'text-gray-300'
+														: 'text-muted-foreground/30'
 												}`}
 											/>
 										))}
@@ -110,7 +79,7 @@ const DetailedProductReviews = ({ selectedProduct }: Props) => {
 										{selectedProduct?.averageRating}
 									</span>
 								</div>
-								<div className='text-sm text-gray-600'>
+								<div className='text-sm text-muted-foreground'>
 									Based on {selectedProduct?.totalReviews} reviews
 								</div>
 							</div>
@@ -118,24 +87,47 @@ const DetailedProductReviews = ({ selectedProduct }: Props) => {
 					</div>
 
 					<div className='space-y-6'>
-						{reviewsData.map((review) => (
+						{reviews.map((review) => (
 							<DetailedProductReviewItem
-								key={review.id}
+								key={review._id}
 								review={review}
+								setSelectedReviewImages={setSelectedReviewImages}
+								setReviewImageIndex={setReviewImageIndex}
+								setSelectedReviewerName={setSelectedReviewerName}
+								setShowReviewImageModal={setShowReviewImageModal}
 							/>
 						))}
 					</div>
 
-					<div className='text-center mt-8'>
-						<Button
-							variant='outline'
-							className='bg-transparent'
-						>
-							Load More Reviews
-						</Button>
-					</div>
+					{pagination && pagination.nextPage && (
+						<div className='text-center mt-8'>
+							<Button
+								variant='outline'
+								className='bg-transparent'
+								onClick={() => {
+									console.log(pagination.nextPage);
+									getAllReviews(selectedProduct?._id || '', pagination?.nextPage || '');
+								}}
+							>
+								Load More Reviews
+							</Button>
+						</div>
+					)}
 				</CardContent>
 			</Card>
+
+			<AnimatePresence>
+				{showReviewImageModal && (
+					<ReviewImageModal
+						isOpen={showReviewImageModal}
+						onClose={() => setShowReviewImageModal(false)}
+						images={selectedReviewImages}
+						currentIndex={reviewImageIndex}
+						onNavigate={setReviewImageIndex}
+						reviewerName={selectedReviewerName}
+					/>
+				)}
+			</AnimatePresence>
 		</div>
 	);
 };

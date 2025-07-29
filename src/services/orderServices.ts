@@ -20,3 +20,13 @@ export const getOrders = async () => {
 		throw error;
 	}
 };
+
+export const cancelOrder = async (orderId: string) => {
+	try {
+		const response = await axios.patch(`api/v1/orders/${orderId}/cancel`);
+		return response.data;
+	} catch (error) {
+		console.error('Error cancelling order:', error);
+		throw error;
+	}
+};

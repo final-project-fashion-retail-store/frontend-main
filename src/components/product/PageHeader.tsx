@@ -4,7 +4,8 @@ import { Label } from '@/components/ui/label';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import sortOptions from '@/constants/SortOptions';
 import { Filter } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 
 type Props = {
 	pageTitle?: string;
@@ -14,6 +15,7 @@ type Props = {
 	setIsMobileFiltersOpen: Dispatch<SetStateAction<boolean>>;
 	setSortBy: Dispatch<SetStateAction<string>>;
 	getActiveFiltersCount: () => number;
+	onSortChange?: (sortQuery: string) => void;
 };
 
 const PageHeader = ({
@@ -24,7 +26,77 @@ const PageHeader = ({
 	isMobileFiltersOpen,
 	setIsMobileFiltersOpen,
 	getActiveFiltersCount,
+	onSortChange,
 }: Props) => {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	// Map sort values to API query parameters
+	const getSortQuery = (sortValue: string) => {
+		switch (sortValue) {
+			case 'newest':
+				return 'sort=-createdAt';
+			case 'price-low':
+				return 'sort=price';
+			case 'price-high':
+				return 'sort=-price';
+			case 'rating':
+				return 'sort=-averageRating';
+			case 'popular':
+				return 'sort=-totalReviews';
+			default:
+				return 'sort=-createdAt';
+		}
+	};
+
+	const handleSortChange = (newSortBy: string) => {
+		setSortBy(newSortBy);
+
+		// Update URL with sort parameter
+		const currentParams = new URLSearchParams(searchParams.toString());
+		const sortQuery = getSortQuery(newSortBy);
+
+		// Extract just the sort value without 'sort=' prefix
+		const sortValue = sortQuery.replace('sort=', '');
+		currentParams.set('sort', sortValue);
+
+		// Update URL
+		router.push(`?${currentParams.toString()}`);
+
+		// Call the callback if provided to trigger API call
+		if (onSortChange) {
+			// Build complete query string including existing params
+			const fullQuery = currentParams.toString();
+			onSortChange(fullQuery);
+		}
+	};
+
+	useEffect(() => {
+		const sortParam = searchParams.get('sort');
+		if (sortParam) {
+			// Map API sort parameter back to select value
+			let selectValue = 'newest';
+			switch (sortParam) {
+				case '-createdAt':
+					selectValue = 'newest';
+					break;
+				case 'price':
+					selectValue = 'price-low';
+					break;
+				case '-price':
+					selectValue = 'price-high';
+					break;
+				case '-averageRating':
+					selectValue = 'rating';
+					break;
+				case '-totalReviews':
+					selectValue = 'popular';
+					break;
+			}
+			setSortBy(selectValue);
+		}
+	}, [searchParams, setSortBy]);
+
 	return (
 		<div className='flex items-center justify-between max-sm:flex-col max-sm:gap-4 mb-6'>
 			<div className='max-sm:text-center'>
@@ -48,7 +120,7 @@ const PageHeader = ({
 					<SelectCustom
 						items={sortOptions}
 						value={sortBy}
-						onValueChange={setSortBy}
+						onValueChange={handleSortChange}
 					/>
 				</div>
 				{/* Mobile Filter Toggle */}

@@ -27,5 +27,5 @@ export type { CreateOrder } from './CreateOrder';
 export type { Order } from './Order';
 
 // Review
-// export type { Review } from './Review';
+export type { Review } from './Review';
 export type { ReviewDataSend } from './ReviewDataSend';

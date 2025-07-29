@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import useCommonStore from '@/stores/commonStore';
 import useOrderStore from '@/stores/orderStore';
 import useReviewStore from '@/stores/reviewStore';
+import { Review } from '@/types';
 import { LoaderCircle, Star } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -13,21 +14,29 @@ import { toast } from 'sonner';
 import { useShallow } from 'zustand/shallow';
 
 type Props = {
+	review?: Review;
 	color: string;
 	size: string;
-	orderId: string;
+	orderId?: string;
 	item: {
 		product: {
-			_id: string;
+			_id?: string;
 			name: string;
 		};
-		variantId: string;
+		variantId?: string;
 		image: string;
 	};
 	setIsOpen: (open: boolean) => void;
 };
 
-const ReviewForm = ({ color, size, item, orderId, setIsOpen }: Props) => {
+const ReviewForm = ({
+	review,
+	color,
+	size,
+	item,
+	orderId,
+	setIsOpen,
+}: Props) => {
 	const [uploadedImages, uploadImages, destroyImages, reset] = useCommonStore(
 		useShallow((state) => [
 			state.uploadedImages,
@@ -36,9 +45,15 @@ const ReviewForm = ({ color, size, item, orderId, setIsOpen }: Props) => {
 			state.reset,
 		])
 	);
-	const [isCreatingReview, createReview] = useReviewStore(
-		useShallow((state) => [state.isCreatingReview, state.createReview])
-	);
+	const [isCreatingReview, isUpdatingReview, createReview, updateReview] =
+		useReviewStore(
+			useShallow((state) => [
+				state.isCreatingReview,
+				state.isUpdatingReview,
+				state.createReview,
+				state.updateReview,
+			])
+		);
 	const getAllOrders = useOrderStore(useShallow((state) => state.getAllOrders));
 	const [data, setData] = useState<{
 		rating: number;
@@ -48,12 +63,24 @@ const ReviewForm = ({ color, size, item, orderId, setIsOpen }: Props) => {
 			public_id: string;
 			secure_url: string;
 		}[];
-	}>({
-		rating: 0,
-		title: '',
-		comment: '',
-		images: [],
-	});
+	}>(
+		review
+			? {
+					rating: review.rating,
+					title: review.title,
+					comment: review.comment,
+					images: review.images.map((img) => ({
+						public_id: img.publicId,
+						secure_url: img.url,
+					})),
+			  }
+			: {
+					rating: 0,
+					title: '',
+					comment: '',
+					images: [],
+			  }
+	);
 
 	useEffect(() => {
 		if (uploadedImages && uploadedImages.length > 0) {
@@ -97,18 +124,33 @@ const ReviewForm = ({ color, size, item, orderId, setIsOpen }: Props) => {
 	};
 
 	const handleSubmitReview = async () => {
-		const properData = {
-			...data,
-			orderId,
-			productId: item.product._id,
-			variantId: item.variantId,
-			images: data.images.map((img) => ({
-				publicId: img.public_id,
-				url: img.secure_url,
-			})),
-		};
+		const properData = review
+			? {
+					...data,
+					images: data.images.map((img) => ({
+						publicId: img.public_id,
+						url: img.secure_url,
+					})),
+			  }
+			: {
+					...data,
+					orderId,
+					productId: item.product._id,
+					variantId: item.variantId,
+					images: data.images.map((img) => ({
+						publicId: img.public_id,
+						url: img.secure_url,
+					})),
+			  };
 
-		const result = await createReview(properData);
+		let result;
+
+		if (review) {
+			result = await updateReview(review._id, properData);
+		} else {
+			result = await createReview(properData);
+		}
+
 		if (result.success) {
 			toast.success(result.message);
 			await getAllOrders();
@@ -288,10 +330,12 @@ const ReviewForm = ({ color, size, item, orderId, setIsOpen }: Props) => {
 				<Button
 					onClick={handleSubmitReview}
 					className='bg-purple-600 hover:bg-purple-700 text-white'
-					disabled={isCreatingReview || data.rating === 0}
+					disabled={isCreatingReview || isUpdatingReview || data.rating === 0}
 				>
-					{isCreatingReview ? (
+					{isCreatingReview || isUpdatingReview ? (
 						<LoaderCircle className='animate-spin' />
+					) : review ? (
+						'Update Review'
 					) : (
 						'Submit Review'
 					)}

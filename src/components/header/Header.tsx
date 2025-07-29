@@ -122,11 +122,6 @@ const Header = () => {
 				<div className='flex items-center justify-between border-b py-4'>
 					{/* Search */}
 					<div className='w-72 relative'>
-						{/* <Input
-							className='pl-8'
-							placeholder='Search...'
-						/>
-						<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 size-5 text-muted-foreground' /> */}
 						<SearchDropdown />
 					</div>
 					{/* Logo */}

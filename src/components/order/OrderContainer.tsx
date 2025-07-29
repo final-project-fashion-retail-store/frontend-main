@@ -13,13 +13,15 @@ import { useShallow } from 'zustand/shallow';
 
 const OrderContainer = () => {
 	const authUser = useAuthStore((state) => state.authUser);
-	const [orders, getAllOrders, isGettingOrders] = useOrderStore(
-		useShallow((state) => [
-			state.orders,
-			state.getAllOrders,
-			state.isGettingOrders,
-		])
-	);
+	const [orders, getAllOrders, isGettingOrders, isCancelingOrder] =
+		useOrderStore(
+			useShallow((state) => [
+				state.orders,
+				state.getAllOrders,
+				state.isGettingOrders,
+				state.isCancelingOrder,
+			])
+		);
 	const [isUploadingImages, isDestroyingImages] = useCommonStore(
 		useShallow((state) => [state.isUploadingImages, state.isDestroyingImages])
 	);
@@ -37,7 +39,9 @@ const OrderContainer = () => {
 
 	return (
 		<div className='w-full'>
-			{(isUploadingImages || isDestroyingImages) && <Overlay loading />}
+			{(isUploadingImages || isDestroyingImages || isCancelingOrder) && (
+				<Overlay loading />
+			)}
 			{isCreatingReview && <Overlay />}
 			{/* page header */}
 			<div className='mb-8'>

@@ -132,6 +132,13 @@ function SearchDropdown({
 		}
 	};
 
+	const handleClickResult = () => {
+		setTimeout(() => {
+			searchInputRef.current?.blur();
+		}, 0);
+		setIsOpen(false);
+	};
+
 	return (
 		<div className={`relative ${className}`}>
 			<div
@@ -201,6 +208,7 @@ function SearchDropdown({
 																key={product._id}
 																href={`/product/${product.slug}`}
 																className='flex items-center gap-3 p-2 rounded-lg hover:bg-accent dark:hover:bg-muted-foreground/10 cursor-pointer'
+																onClick={handleClickResult}
 															>
 																<Image
 																	src={product.images[0].url}
@@ -230,7 +238,7 @@ function SearchDropdown({
 												<>
 													<Separator />
 													<div className='p-4'>
-														<h3 className='text-sm font-medium text-gray-700 mb-3'>
+														<h3 className='text-sm font-medium text-muted-foreground mb-3'>
 															Categories
 														</h3>
 														<div className='space-y-2'>
@@ -238,14 +246,15 @@ function SearchDropdown({
 																<Link
 																	key={category.name}
 																	href={`/category/${category.parentCategory[0].slug}/${category.slug}`}
-																	className='flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
+																	className='flex items-center gap-3 p-2 rounded-lg hover:bg-muted-foreground/10 cursor-pointer'
+																	onClick={handleClickResult}
 																>
 																	{/* <span className='text-lg'>{category.icon}</span> */}
 																	<div className='flex-1'>
-																		<p className='text-sm font-medium text-gray-900'>
+																		<p className='text-sm font-medium text-foreground'>
 																			{category.name}
 																		</p>
-																		<p className='text-xs text-gray-500'>
+																		<p className='text-xs text-muted-foreground/50'>
 																			{category.productCount} items
 																		</p>
 																	</div>
@@ -261,18 +270,21 @@ function SearchDropdown({
 												<>
 													<Separator />
 													<div className='p-4'>
-														<h3 className='text-sm font-medium text-gray-700 mb-3'>Brands</h3>
+														<h3 className='text-sm font-medium text-muted-foreground mb-3'>
+															Brands
+														</h3>
 														<div className='space-y-2'>
 															{searchResultPopup.brands.map((brand) => (
 																<Link
 																	href={`/brand/${brand.slug}`}
 																	key={brand.name}
-																	className='flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer'
+																	className='flex items-center justify-between p-2 rounded-lg hover:bg-muted-foreground/10 cursor-pointer'
+																	onClick={handleClickResult}
 																>
-																	<span className='text-sm font-medium text-gray-900'>
+																	<span className='text-sm font-medium text-foreground'>
 																		{brand.name}
 																	</span>
-																	<span className='text-xs text-gray-500'>
+																	<span className='text-xs text-muted-foreground/50'>
 																		{brand.productCount} items
 																	</span>
 																</Link>

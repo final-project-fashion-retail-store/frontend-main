@@ -6,9 +6,9 @@ import { AlignJustify, Search, ShoppingCart, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import ThemeToggleComp from '@/components/theme-toggle';
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import Menu from '@/components/header/mobileNavigation/Menu';
+import SearchDropdown from '@/components/header/SearchDropdown';
 
 const ThemeToggle = dynamic(() => Promise.resolve(ThemeToggleComp), {
 	ssr: false,
@@ -52,11 +52,12 @@ const MobileNavigation = () => {
 			</div>
 			{showSearch && (
 				<div className='w-full p-4 bg-accent border-t'>
-					<Input
+					{/* <Input
 						type='text'
 						placeholder='Search products...'
 						className='text-sm'
-					/>
+					/> */}
+					<SearchDropdown />
 				</div>
 			)}
 		</div>

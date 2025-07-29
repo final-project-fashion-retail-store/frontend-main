@@ -60,7 +60,8 @@ const BrandContainer = ({ slug }: Props) => {
 
 	useEffect(() => {
 		if (!searchParams.toString()) {
-			getProductByBrand(slug);
+			const query = 'sort=-createdAt';
+			getProductByBrand(slug, query);
 		} else {
 			// No need to wait, we just skip the firstLoad
 			setIsInitialLoaded(true);
@@ -198,7 +199,7 @@ const BrandContainer = ({ slug }: Props) => {
 		{ label: 'Home', href: '/' },
 		{ label: 'Brand', href: `/brand/${slug}` },
 	];
-	console.log(pagination);
+
 	return (
 		<div className='w-full'>
 			<div className='max-sm:hidden'>
@@ -212,6 +213,7 @@ const BrandContainer = ({ slug }: Props) => {
 				setIsMobileFiltersOpen={setIsMobileFiltersOpen}
 				setSortBy={setSortBy}
 				getActiveFiltersCount={getActiveFiltersCount}
+				onSortChange={handleFilterChange}
 			/>
 			<div className='flex gap-8'>
 				<div className='hidden lg:block w-64 flex-shrink-0'>
