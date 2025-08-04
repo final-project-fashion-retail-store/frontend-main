@@ -1,5 +1,6 @@
 import {
 	addProductToWishlist,
+	getBestSellingProducts,
 	getProduct,
 	getProductByBrand,
 	getProductByCategory,
@@ -18,6 +19,7 @@ import {
 	Pagination,
 	SearchResultPopup,
 	RelatedProduct,
+	BestSellingProduct,
 } from '@/types';
 import { AxiosError } from 'axios';
 import { create } from 'zustand';
@@ -28,7 +30,7 @@ type Stores = {
 	totalWishlist: number;
 	selectedProduct: Product | null;
 	relatedProducts: RelatedProduct[] | null;
-	bestSellingProducts: Product[] | null;
+	bestSellingProducts: BestSellingProduct[] | null;
 	pagination: Pagination | null;
 	filter: Filter | null;
 	searchResultPopup: SearchResultPopup | null;
@@ -40,6 +42,7 @@ type Stores = {
 	isRemovingProductFromWishlist: boolean;
 
 	getProducts: (featuredProduct?: boolean | '') => void;
+	getBestSellingProducts: () => void;
 	getProductByCategory: (
 		slug?: string,
 		link?: string,
@@ -104,6 +107,20 @@ const useProductStore = create<Stores>((set, get) => ({
 			}
 		} finally {
 			set({ isGettingProducts: false });
+		}
+	},
+
+	async getBestSellingProducts() {
+		try {
+			set({ isGettingBestSellingProducts: true });
+			const res = await getBestSellingProducts();
+			set({ bestSellingProducts: res.data.products });
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				console.log(err);
+			}
+		} finally {
+			set({ isGettingBestSellingProducts: false });
 		}
 	},
 

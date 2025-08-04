@@ -18,6 +18,7 @@ export type { ProductVariant } from './ProductVariant';
 export type { Filter } from './Filter';
 export type { SearchResultPopup } from './SearchResultPopup';
 export type { RelatedProduct } from './RelatedProduct';
+export type { BestSellingProduct } from './BestSellingProduct';
 
 // Cart
 export type { CartItem } from './CartItem';

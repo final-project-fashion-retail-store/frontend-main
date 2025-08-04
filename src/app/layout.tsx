@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import ChatSupport from '@/components/chat-support';
 import Header from '@/components/header/Header';
 import Footer from '@/components/Footer';
+import RoleGuard from '@/components/auth/RoleGuard';
 
 const poppins = Poppins({
 	variable: '--font-poppins',
@@ -48,10 +49,12 @@ export default function RootLayout({
 						disableTransitionOnChange
 					>
 						<AuthProvider>
-							<Header />
-							<ChatSupport />
-							{children}
-							<Footer />
+							<RoleGuard allowedRoles={['user']}>
+								<Header />
+								<ChatSupport />
+								{children}
+								<Footer />
+							</RoleGuard>
 						</AuthProvider>
 						<Toaster />
 					</ThemeProvider>

@@ -30,6 +30,15 @@ export const getRelatedProducts = async (slug: string) => {
 	}
 };
 
+export const getBestSellingProducts = async () => {
+	try {
+		const response = await axios.get('api/v1/products/best-selling');
+		return response.data;
+	} catch (error) {
+		if (isAxiosError(error)) throw error;
+	}
+};
+
 export const getProductByCategory = async (
 	slug: string,
 	link: string,

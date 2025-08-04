@@ -1,9 +1,10 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { BestSellingProduct } from '@/types';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const fadeInUp = {
 	initial: { opacity: 0, y: 60 },
@@ -12,54 +13,50 @@ const fadeInUp = {
 };
 
 type Props = {
-	product: {
-		id: number;
-		name: string;
-		category: string;
-		price: number;
-		originalPrice?: number;
-		image: string;
-		soldCount: number;
-		rating: number;
-		badge: string;
-		discount: number;
-	};
+	product: BestSellingProduct;
 };
 
 const BestSellingCard = ({ product }: Props) => {
+	const [isHovered, setIsHovered] = useState(false);
+
+	const currentImage =
+		isHovered && product.images[1]
+			? product.images[1].url
+			: product.images[0].url;
+	const discountPercentage = (
+		((product.price - product.salePrice) / product.price) *
+		100
+	).toFixed(0);
 	return (
 		<motion.div
-			key={product.id}
+			key={product._id}
 			variants={fadeInUp}
 			whileHover={{ y: -10 }}
-			className='cursor-pointer group'
+			className='cursor-pointer group h-full'
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
 		>
-			<Card className='border-0 shadow-lg hover:shadow-2xl transition-shadow duration-500 overflow-hidden'>
-				<div className='relative overflow-hidden'>
+			<Card className='border-0 shadow-lg hover:shadow-2xl transition-shadow duration-500 overflow-hidden h-full flex flex-col pt-0'>
+				<div className='relative overflow-hidden flex-shrink-0'>
 					<motion.div
 						whileHover={{ scale: 1.1 }}
 						transition={{ duration: 0.5 }}
 					>
 						<Image
-							src='https://res.cloudinary.com/dx2akttki/image/upload/v1749098608/jmniv3aisp4wkj3hlusg.avif'
+							src={currentImage}
 							alt={product.name}
 							width={400}
-							height={500}
-							className='w-full h-80 object-cover'
+							height={320}
+							className='w-full h-48 sm:h-64 md:h-80 object-cover'
 						/>
 					</motion.div>
 
-					{/* Badges */}
-					{/* <Badge className='absolute top-4 left-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white'>
-											{product.badge}
-										</Badge> */}
-
-					{product.discount > 0 && (
+					{product.price > product.salePrice && (
 						<Badge
 							variant='destructive'
-							className='absolute top-4 right-4'
+							className='absolute top-2 right-2 text-xs'
 						>
-							-{product.discount}%
+							-{discountPercentage}%
 						</Badge>
 					)}
 
@@ -69,8 +66,8 @@ const BestSellingCard = ({ product }: Props) => {
 						initial={{ opacity: 0 }}
 						whileHover={{ opacity: 1 }}
 					>
-						<div className='absolute bottom-4 left-4 right-4 text-white'>
-							<div className='flex items-center justify-between mb-2'>
+						<div className='absolute bottom-2 left-2 right-2 text-white'>
+							<div className='flex items-center justify-between mb-1'>
 								<div className='flex items-center gap-1'>
 									<motion.div
 										animate={{ rotate: 360 }}
@@ -80,23 +77,20 @@ const BestSellingCard = ({ product }: Props) => {
 											ease: 'linear',
 										}}
 									>
-										<Star className='w-4 h-4 fill-current text-yellow-400' />
+										<Star className='w-3 h-3 fill-current text-yellow-400' />
 									</motion.div>
-									<span className='text-sm font-semibold'>{product.rating}</span>
+									<span className='text-xs font-semibold'>{product.averageRating}</span>
 								</div>
-								<div className='text-sm'>
-									<span className='font-semibold'>
-										{product.soldCount.toLocaleString()}
-									</span>{' '}
-									sold
+								<div className='text-xs'>
+									<span className='font-semibold'>{product.totalSold}</span> sold
 								</div>
 							</div>
-							<div className='w-full bg-accent-foreground/20 rounded-full h-2'>
+							<div className='w-full bg-accent-foreground/20 rounded-full h-1'>
 								<motion.div
-									className='bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full'
+									className='bg-gradient-to-r from-yellow-400 to-orange-500 h-1 rounded-full'
 									initial={{ width: 0 }}
 									whileHover={{
-										width: `${Math.min((product.soldCount / 1500) * 100, 100)}%`,
+										width: `${Math.min((product.totalSold / 1500) * 100, 100)}%`,
 									}}
 									transition={{ duration: 1, ease: 'easeOut' }}
 								/>
@@ -106,52 +100,47 @@ const BestSellingCard = ({ product }: Props) => {
 					</motion.div>
 				</div>
 
-				<CardContent className='p-6'>
-					<div className='space-y-2'>
-						<p className='text-sm text-purple-600 font-medium'>{product.category}</p>
-						<h3 className='text-xl font-bold transition-colors'>{product.name}</h3>
-						<div className='flex items-center gap-2'>
-							<span className='text-2xl font-bold text-purple-600'>
-								${product.price}
+				<CardContent className='p-3 md:p-6 flex-1 flex flex-col justify-between'>
+					<div className='space-y-1 md:space-y-2 flex-1'>
+						<p className='text-xs md:text-sm text-purple-600 font-medium'>
+							{product.category[0].name}
+						</p>
+						<h3 className='text-sm md:text-xl font-bold transition-colors line-clamp-2'>
+							{product.name}
+						</h3>
+						<div className='flex items-center gap-1 md:gap-2'>
+							<span className='text-lg md:text-2xl font-bold text-purple-600'>
+								${product.salePrice}
 							</span>
-							{product.originalPrice && (
-								<span className='text-lg text-muted-foreground line-through'>
-									${product.originalPrice}
+							{product.price > product.salePrice && (
+								<span className='text-sm md:text-lg text-muted-foreground line-through'>
+									${product.price}
 								</span>
 							)}
 						</div>
-
-						{/* Rating and sales info */}
-						<div className='flex items-center justify-between text-sm text-muted-foreground'>
-							<div className='flex items-center gap-1'>
-								<div className='flex'>
-									{[...Array(5)].map((_, i) => (
-										<Star
-											key={i}
-											className={`w-3 h-3 ${
-												i < Math.floor(product.rating)
-													? 'text-yellow-400 fill-current'
-													: 'text-muted-foreground'
-											}`}
-										/>
-									))}
-								</div>
-								<span>({product.rating})</span>
-							</div>
-							<span className='font-semibold text-green-600'>
-								{product.soldCount.toLocaleString()} sold
-							</span>
-						</div>
 					</div>
 
-					<motion.div
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.95 }}
-					>
-						<Button className='w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'>
-							Add to Cart
-						</Button>
-					</motion.div>
+					{/* Rating and sales info */}
+					<div className='flex items-center justify-between text-xs md:text-sm text-muted-foreground mt-2 md:mt-4'>
+						<div className='flex items-center gap-1'>
+							<div className='flex'>
+								{[...Array(5)].map((_, i) => (
+									<Star
+										key={i}
+										className={`w-2 h-2 md:w-3 md:h-3 ${
+											i < Math.floor(product.averageRating)
+												? 'text-yellow-400 fill-current'
+												: 'text-muted-foreground'
+										}`}
+									/>
+								))}
+							</div>
+							<span>({product.averageRating})</span>
+						</div>
+						<span className='font-semibold text-green-600'>
+							{product.totalSold.toLocaleString()} sold
+						</span>
+					</div>
 				</CardContent>
 			</Card>
 		</motion.div>

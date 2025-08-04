@@ -1,132 +1,135 @@
 'use client';
 
 import BestSellingCard from '@/components/home/bestSelling/BestSellingCard';
+import BestSellingCardSkeleton from '@/components/home/bestSelling/BestSellingCardSkeleton';
+import useProductStore from '@/stores/productStore';
 import { motion, useInView } from 'framer-motion';
 import { Star } from 'lucide-react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useShallow } from 'zustand/shallow';
 
-const bestSellingProducts = [
-	{
-		id: 1,
-		name: 'Air Max Classic',
-		category: 'Sneakers',
-		price: 149.99,
-		originalPrice: 179.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 1247,
-		rating: 4.8,
-		badge: 'Best Seller',
-		discount: 17,
-	},
-	{
-		id: 2,
-		name: 'Premium Denim Jacket',
-		category: 'Shirts',
-		price: 89.99,
-		originalPrice: 119.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 892,
-		rating: 4.7,
-		badge: 'Hot',
-		discount: 25,
-	},
-	{
-		id: 3,
-		name: 'Comfort Fit Joggers',
-		category: 'Pants',
-		price: 59.99,
-		originalPrice: 79.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 1156,
-		rating: 4.9,
-		badge: 'Top Rated',
-		discount: 25,
-	},
-	{
-		id: 4,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-	{
-		id: 5,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-	{
-		id: 6,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-	{
-		id: 7,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-	{
-		id: 8,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-	{
-		id: 9,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-	{
-		id: 10,
-		name: 'Vintage Straight Jeans',
-		category: 'Jeans',
-		price: 79.99,
-		originalPrice: 99.99,
-		image: '/placeholder.svg?height=500&width=400',
-		soldCount: 734,
-		rating: 4.6,
-		badge: 'Trending',
-		discount: 20,
-	},
-];
+// const bestSellingProducts = [
+// 	{
+// 		id: 1,
+// 		name: 'Air Max Classic',
+// 		category: 'Sneakers',
+// 		price: 149.99,
+// 		originalPrice: 179.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 1247,
+// 		rating: 4.8,
+// 		badge: 'Best Seller',
+// 		discount: 17,
+// 	},
+// 	{
+// 		id: 2,
+// 		name: 'Premium Denim Jacket',
+// 		category: 'Shirts',
+// 		price: 89.99,
+// 		originalPrice: 119.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 892,
+// 		rating: 4.7,
+// 		badge: 'Hot',
+// 		discount: 25,
+// 	},
+// 	{
+// 		id: 3,
+// 		name: 'Comfort Fit Joggers',
+// 		category: 'Pants',
+// 		price: 59.99,
+// 		originalPrice: 79.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 1156,
+// 		rating: 4.9,
+// 		badge: 'Top Rated',
+// 		discount: 25,
+// 	},
+// 	{
+// 		id: 4,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// 	{
+// 		id: 5,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// 	{
+// 		id: 6,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// 	{
+// 		id: 7,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// 	{
+// 		id: 8,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// 	{
+// 		id: 9,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// 	{
+// 		id: 10,
+// 		name: 'Vintage Straight Jeans',
+// 		category: 'Jeans',
+// 		price: 79.99,
+// 		originalPrice: 99.99,
+// 		image: '/placeholder.svg?height=500&width=400',
+// 		soldCount: 734,
+// 		rating: 4.6,
+// 		badge: 'Trending',
+// 		discount: 20,
+// 	},
+// ];
 
 const staggerContainer = {
 	animate: {
@@ -137,9 +140,27 @@ const staggerContainer = {
 };
 
 const BestSelling = () => {
+	const [
+		isGettingBestSellingProducts,
+		getBestSellingProducts,
+		bestSellingProducts,
+	] = useProductStore(
+		useShallow((state) => [
+			state.isGettingBestSellingProducts,
+			state.getBestSellingProducts,
+			state.bestSellingProducts,
+		])
+	);
+
+	useEffect(() => {
+		getBestSellingProducts();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const styleRef = useRef(null);
 
 	const styleInView = useInView(styleRef, { once: true, margin: '-100px' });
+
 	return (
 		<section
 			ref={styleRef}
@@ -176,17 +197,25 @@ const BestSelling = () => {
 					</p>
 				</motion.div>
 				<motion.div
-					className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'
+					className='grid grid-cols-2 lg:grid-cols-4 gap-8'
 					variants={staggerContainer}
 					initial='initial'
 					animate={styleInView ? 'animate' : 'initial'}
 				>
-					{bestSellingProducts.map((product) => (
-						<BestSellingCard
-							key={product.id}
-							product={product}
-						/>
-					))}
+					{!isGettingBestSellingProducts && bestSellingProducts ? (
+						bestSellingProducts.map((product) => (
+							<BestSellingCard
+								key={product._id}
+								product={product}
+							/>
+						))
+					) : (
+						<>
+							{[...Array(4)].map((_, index) => (
+								<BestSellingCardSkeleton key={index} />
+							))}
+						</>
+					)}
 				</motion.div>
 			</div>
 		</section>
