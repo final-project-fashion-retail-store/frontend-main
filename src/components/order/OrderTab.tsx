@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Order } from '@/types';
 import { Package } from 'lucide-react';
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 type Props = {
@@ -115,7 +116,7 @@ const OrderTab = ({ orders }: Props) => {
 				</TabsList>
 			</div>
 			<div className='md:hidden'>
-				<div className='bg-white border rounded-lg p-1 overflow-x-auto'>
+				<div className='bg-accent border rounded-lg p-1 overflow-x-auto'>
 					<div className='flex space-x-1 min-w-max'>
 						{[
 							{ value: 'all', label: 'All', count: allTotal },
@@ -160,8 +161,11 @@ const OrderTab = ({ orders }: Props) => {
 								? "You haven't placed any orders yet"
 								: `No ${activeTab} orders found`}
 						</p>
-						<Button className='bg-purple-600 hover:bg-purple-700 text-white'>
-							Continue Shopping
+						<Button
+							asChild
+							className='bg-purple-600 hover:bg-purple-700 text-white'
+						>
+							<Link href='/'>Continue Shopping</Link>
 						</Button>
 					</div>
 				) : (

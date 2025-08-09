@@ -4,6 +4,7 @@ import { BestSellingProduct } from '@/types';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const fadeInUp = {
@@ -19,6 +20,8 @@ type Props = {
 const BestSellingCard = ({ product }: Props) => {
 	const [isHovered, setIsHovered] = useState(false);
 
+	const router = useRouter();
+
 	const currentImage =
 		isHovered && product.images[1]
 			? product.images[1].url
@@ -27,6 +30,10 @@ const BestSellingCard = ({ product }: Props) => {
 		((product.price - product.salePrice) / product.price) *
 		100
 	).toFixed(0);
+
+	const handleClickProduct = () => {
+		router.push(`/product/${product.slug}`);
+	};
 	return (
 		<motion.div
 			key={product._id}
@@ -35,6 +42,7 @@ const BestSellingCard = ({ product }: Props) => {
 			className='cursor-pointer group h-full'
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
+			onClick={handleClickProduct}
 		>
 			<Card className='border-0 shadow-lg hover:shadow-2xl transition-shadow duration-500 overflow-hidden h-full flex flex-col pt-0'>
 				<div className='relative overflow-hidden flex-shrink-0'>

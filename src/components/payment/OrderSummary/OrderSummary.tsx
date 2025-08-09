@@ -50,12 +50,12 @@ const OrderSummary = ({ cartItems, getTotalPrice }: Props) => {
 				<CardContent className='space-y-6'>
 					{/* Order Items */}
 					<div className='space-y-4'>
-						{cartItems.map((item) => (
+						{availableItems.map((item) => (
 							<div
 								key={item.variantId}
 								className='flex gap-4'
 							>
-								<div className='relative w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0'>
+								<div className='relative w-16 h-16 bg-muted-foreground/10 rounded-lg flex-shrink-0'>
 									<Image
 										src={item.product.images[0].url}
 										alt={item.product.name}
@@ -74,17 +74,17 @@ const OrderSummary = ({ cartItems, getTotalPrice }: Props) => {
 									>
 										{item.product.brand.name}
 									</Badge>
-									<h4 className='font-medium text-sm text-gray-900 line-clamp-2 mb-1'>
+									<h4 className='font-medium text-sm text-foreground line-clamp-2 mb-1'>
 										{item.product.name}
 									</h4>
-									<div className='flex items-center gap-2 text-xs text-gray-600'>
+									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
 										<span>{findVariant(item, item.variantId)?.color}</span>
 										<span>•</span>
 										<span>{findVariant(item, item.variantId)?.size}</span>
 									</div>
 								</div>
 								<div className='text-right'>
-									<div className='font-semibold text-gray-900'>
+									<div className='font-semibold text-foreground'>
 										$
 										{(
 											(findVariant(item, item.variantId)?.salePrice || 0) * item.quantity
@@ -96,7 +96,7 @@ const OrderSummary = ({ cartItems, getTotalPrice }: Props) => {
 											variant?.salePrice &&
 											variant?.price &&
 											variant.salePrice < variant.price && (
-												<div className='text-xs text-gray-500 line-through'>
+												<div className='text-xs text-muted-foreground line-through'>
 													${(variant.price * item.quantity).toFixed(2)}
 												</div>
 											)
@@ -137,16 +137,16 @@ const OrderSummary = ({ cartItems, getTotalPrice }: Props) => {
 					</div>
 
 					{/* Security Features */}
-					<div className='bg-gray-50 rounded-lg p-4 space-y-2'>
-						<div className='flex items-center gap-2 text-sm text-gray-600'>
+					<div className='bg-muted-foreground/10 rounded-lg p-4 space-y-2'>
+						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 							<Shield className='w-4 h-4 text-green-600' />
 							<span>SSL encrypted checkout</span>
 						</div>
-						<div className='flex items-center gap-2 text-sm text-gray-600'>
+						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 							<Truck className='w-4 h-4 text-green-600' />
 							<span>Free shipping on orders $75+</span>
 						</div>
-						<div className='flex items-center gap-2 text-sm text-gray-600'>
+						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 							<Check className='w-4 h-4 text-green-600' />
 							<span>30-day return policy</span>
 						</div>

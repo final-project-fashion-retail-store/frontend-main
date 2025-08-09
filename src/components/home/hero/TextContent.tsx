@@ -1,7 +1,6 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const TextContent = () => {
@@ -101,7 +100,7 @@ const TextContent = () => {
 					animate={{ opacity: titleComplete ? 1 : 0 }}
 					transition={{ duration: 0.5 }}
 				>
-					<p className='text-xl text-muted-foreground leading-relaxed'>
+					<p className='text-xl max-sm:text-lg text-muted-foreground leading-relaxed'>
 						<span>{displayedDescription}</span>
 						{titleComplete &&
 							displayedDescription.length > 0 &&
@@ -119,42 +118,6 @@ const TextContent = () => {
 					</p>
 				</motion.div>
 			</div>
-
-			<motion.div
-				className='flex flex-col sm:flex-row gap-4'
-				initial={{ opacity: 0, y: 30 }}
-				animate={{
-					opacity: descriptionComplete ? 1 : 0,
-					y: descriptionComplete ? 0 : 30,
-				}}
-				transition={{ delay: 0.3, duration: 0.6 }}
-			>
-				<motion.div
-					whileHover={{ scale: 1.05 }}
-					whileTap={{ scale: 0.95 }}
-				>
-					<Button
-						size='lg'
-						className='bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg'
-					>
-						Shop Collection
-						<ArrowRight className='ml-2 w-5 h-5' />
-					</Button>
-				</motion.div>
-
-				<motion.div
-					whileHover={{ scale: 1.05 }}
-					whileTap={{ scale: 0.95 }}
-				>
-					<Button
-						size='lg'
-						variant='outline'
-						className='px-8 py-6 text-lg border-purple-200 hover:bg-purple-50 bg-transparent'
-					>
-						View Lookbook
-					</Button>
-				</motion.div>
-			</motion.div>
 		</div>
 	);
 };

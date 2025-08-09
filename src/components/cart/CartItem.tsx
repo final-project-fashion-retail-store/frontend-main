@@ -130,7 +130,7 @@ const CartItem = ({ item }: Props) => {
 										{item.product.brand.name}
 									</Badge>
 									<Link href={`/product/${item.product.slug}`}>
-										<h3 className='text-base md:text-lg font-semibold text-gray-900 hover:text-purple-600 cursor-pointer line-clamp-2'>
+										<h3 className='text-base md:text-lg font-semibold text-foreground hover:text-purple-600 cursor-pointer line-clamp-2'>
 											{item.product.name}
 										</h3>
 									</Link>
@@ -139,7 +139,7 @@ const CartItem = ({ item }: Props) => {
 									variant='ghost'
 									size='icon'
 									onClick={handleClickRemoveFromCart}
-									className='text-gray-400 hover:text-red-500 flex-shrink-0'
+									className='text-muted-foreground hover:text-red-500 flex-shrink-0'
 								>
 									<Trash2 className='w-4 h-4' />
 								</Button>
@@ -159,45 +159,49 @@ const CartItem = ({ item }: Props) => {
 
 							{/* Color Selection */}
 							<div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4'>
-								<span className='text-sm font-medium text-gray-700'>Color:</span>
+								<span className='text-sm font-medium text-muted-foreground'>
+									Color:
+								</span>
 								<button
 									onClick={() => setIsOpen(true)}
-									className='flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-purple-500 transition-colors text-left'
+									className='flex items-center gap-2 px-3 py-2 border border-muted-foreground/30 rounded-lg hover:border-purple-500 transition-colors text-left'
 								>
 									<div
-										className='w-4 h-4 rounded-full border border-gray-300'
+										className='w-4 h-4 rounded-full border border-muted-foreground/30'
 										style={{
 											backgroundColor: getColor(item).toLowerCase(),
 										}}
 									/>
 									<span className='text-sm'>{getColor(item)}</span>
-									<span className='text-xs text-gray-500 ml-auto'>Change</span>
+									<span className='text-xs text-muted-foreground/50 ml-auto'>
+										Change
+									</span>
 								</button>
 							</div>
 
 							{/* Size Selection */}
 							<div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4'>
-								<span className='text-sm font-medium text-gray-700'>Size:</span>
+								<span className='text-sm font-medium text-muted-foreground'>Size:</span>
 								<button
 									onClick={() => setIsOpen(true)}
-									className='flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-purple-500 transition-colors text-left w-fit'
+									className='flex items-center gap-2 px-3 py-2 border border-muted-foreground/30 rounded-lg hover:border-purple-500 transition-colors text-left w-fit'
 								>
 									<span className='text-sm font-medium'>{getSize(item)}</span>
-									<span className='text-xs text-gray-500'>Change</span>
+									<span className='text-xs text-muted-foreground/50'>Change</span>
 								</button>
 							</div>
 
 							{/* Quantity and Total */}
 							<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t'>
 								<div className='flex items-center gap-3'>
-									<span className='text-sm font-medium text-gray-700'>Qty:</span>
-									<div className='flex items-center border border-gray-300 rounded-lg'>
+									<span className='text-sm font-medium text-muted-foreground'>Qty:</span>
+									<div className='flex items-center border border-muted-foreground/30 rounded-lg'>
 										<button
 											onClick={() =>
 												handleClickChangeQuantity(Math.max(item.quantity - 1, 1))
 											}
 											disabled={item.quantity <= 1}
-											className='p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+											className='p-2 hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed'
 										>
 											<Minus className='w-3 h-3 md:w-4 md:h-4' />
 										</button>
@@ -211,7 +215,7 @@ const CartItem = ({ item }: Props) => {
 												)
 											}
 											disabled={item.quantity >= item?.maxQuantity}
-											className='p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+											className='p-2 hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed'
 										>
 											<Plus className='w-3 h-3 md:w-4 md:h-4' />
 										</button>
@@ -221,7 +225,7 @@ const CartItem = ({ item }: Props) => {
 									)}
 								</div>
 								<div className='text-left sm:text-right'>
-									<div className='text-base md:text-lg font-bold text-gray-900'>
+									<div className='text-base md:text-lg font-bold text-foreground'>
 										$
 										{(
 											(item.product.salePrice || item.product.price) * item.quantity
@@ -247,7 +251,7 @@ const CartItem = ({ item }: Props) => {
 				setIsOpenChange={setIsOpen}
 				dialogTitle={
 					<>
-						<div className='w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0'>
+						<div className='w-12 h-12 bg-muted-foreground/10 rounded-lg overflow-hidden flex-shrink-0'>
 							<Image
 								src={getProductImage(item)}
 								alt={item.product.name}
@@ -257,7 +261,7 @@ const CartItem = ({ item }: Props) => {
 							/>
 						</div>
 						<div>
-							<div className='text-sm text-purple-600 font-medium'>
+							<div className='text-sm text-start text-purple-600 font-medium'>
 								{item.product.brand.name}
 							</div>
 							<div className='text-base font-semibold line-clamp-2'>

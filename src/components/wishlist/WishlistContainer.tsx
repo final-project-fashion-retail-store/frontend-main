@@ -57,10 +57,10 @@ const WishlistContainer = () => {
 			{wishlistProducts.length === 0 ? (
 				<div className='text-center py-16'>
 					<Heart className='w-16 h-16 text-gray-300 mx-auto mb-4' />
-					<h2 className='text-2xl font-semibold text-gray-900 mb-2'>
+					<h2 className='text-2xl font-semibold text-foreground mb-2'>
 						Your wishlist is empty
 					</h2>
-					<p className='text-gray-600 mb-6'>
+					<p className='text-muted-foreground mb-6'>
 						Start adding items you love to see them here
 					</p>
 					<Button

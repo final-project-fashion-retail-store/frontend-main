@@ -14,6 +14,7 @@ import CartItemUnavailable from '@/components/cart/CartItemUnavailable';
 import CartSummary from '@/components/cart/CartSummary';
 import Overlay from '@/components/ui/overlay';
 import classifyCartItems from '@/lib/classifyCartItems';
+import Link from 'next/link';
 
 const CartContainer = () => {
 	const [totalCartProducts, cartItems, getCartItems, isUpdatingCartItem] =
@@ -54,7 +55,7 @@ const CartContainer = () => {
 					<ShoppingCart className='size-8 text-purple-600' />
 					<h1 className='text-3xl font-bold text-foreground'>Shopping Cart</h1>
 				</div>
-				<p className='text-gray-600'>
+				<p className='text-muted-foreground'>
 					{totalCartProducts} {totalCartProducts === 1 ? 'item' : 'items'} in your
 					cart
 				</p>
@@ -62,12 +63,15 @@ const CartContainer = () => {
 			{cartItems?.length === 0 ? (
 				<div className='text-center py-16'>
 					<ShoppingCart className='w-16 h-16 text-gray-300 mx-auto mb-4' />
-					<h2 className='text-2xl font-semibold text-gray-900 mb-2'>
+					<h2 className='text-2xl font-semibold text-foreground mb-2'>
 						Your cart is empty
 					</h2>
-					<p className='text-gray-600 mb-6'>Add some items to get started</p>
-					<Button className='bg-purple-600 hover:bg-purple-700 text-white'>
-						Continue Shopping
+					<p className='text-muted-foreground mb-6'>Add some items to get started</p>
+					<Button
+						asChild
+						className='bg-purple-600 hover:bg-purple-700 text-white'
+					>
+						<Link href='/'>Continue Shopping</Link>
 					</Button>
 				</div>
 			) : (
@@ -79,7 +83,7 @@ const CartContainer = () => {
 							<div>
 								<div className='flex items-center gap-2 mb-6'>
 									<div className='w-3 h-3 bg-green-500 rounded-full'></div>
-									<h2 className='text-xl font-semibold text-gray-900'>
+									<h2 className='text-xl font-semibold text-foreground'>
 										Available Items ({availableItems.length})
 									</h2>
 								</div>
@@ -101,7 +105,7 @@ const CartContainer = () => {
 							<div>
 								<div className='flex items-center gap-2 mb-4'>
 									<AlertTriangle className='w-5 h-5 text-orange-500' />
-									<h2 className='text-xl font-semibold text-gray-900'>
+									<h2 className='text-xl font-semibold text-foreground'>
 										Unavailable Items ({unavailableItems.length})
 									</h2>
 								</div>
@@ -120,7 +124,7 @@ const CartContainer = () => {
 										your order total.
 									</AlertDescription>
 								</Alert>
-								<div className='space-y-6'>
+								<div className='space-y-6 mt-2'>
 									<AnimatePresence>
 										{unavailableItems.map((item) => (
 											<CartItemUnavailable

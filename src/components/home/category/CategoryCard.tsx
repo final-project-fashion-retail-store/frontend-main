@@ -27,7 +27,7 @@ const CategoryCard = ({ category }: Props) => {
 			}}
 			className='cursor-pointer'
 		>
-			<Card className='border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-gradient-to-br from-purple-50 to-pink-50 overflow-hidden'>
+			<Card className='border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-purple-50 dark:bg-accent overflow-hidden'>
 				<CardContent className='p-8 text-center'>
 					<motion.div
 						className='text-6xl mb-4'
@@ -39,7 +39,9 @@ const CategoryCard = ({ category }: Props) => {
 					>
 						{category.icon}
 					</motion.div>
-					<h3 className='text-xl font-bold mb-2 text-black'>{category.name}</h3>
+					<h3 className='text-xl font-bold mb-2 text-black dark:text-foreground'>
+						{category.name}
+					</h3>
 					<p className='text-muted-foreground'>{category.count}</p>
 				</CardContent>
 			</Card>

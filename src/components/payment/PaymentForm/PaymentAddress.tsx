@@ -91,8 +91,10 @@ const PaymentAddress = ({
 								{currentAddress.label}
 							</Badge>
 						</div>
-						<p className='text-sm text-gray-600'>{currentAddress.phoneNumber}</p>
-						<p className='text-sm text-gray-700'>
+						<p className='text-sm text-muted-foreground/70'>
+							{currentAddress.phoneNumber}
+						</p>
+						<p className='text-sm text-muted-foreground'>
 							{currentAddress.addressLine}, {currentAddress.ward},{' '}
 							{currentAddress.district}, {currentAddress.city}
 						</p>

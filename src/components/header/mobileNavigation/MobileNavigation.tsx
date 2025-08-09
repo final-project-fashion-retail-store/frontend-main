@@ -45,8 +45,11 @@ const MobileNavigation = () => {
 					<Button
 						variant={'ghost'}
 						size={'icon'}
+						asChild
 					>
-						<ShoppingCart />
+						<Link href='/cart'>
+							<ShoppingCart />
+						</Link>
 					</Button>
 				</div>
 			</div>

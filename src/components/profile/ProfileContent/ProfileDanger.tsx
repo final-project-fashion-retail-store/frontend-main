@@ -31,7 +31,7 @@ const ProfileDanger = () => {
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<div className='flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50'>
+				<div className='flex max-md:flex-col items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50'>
 					<div>
 						<h4 className='font-medium text-red-800'>Deactivate Account</h4>
 						<p className='text-sm text-red-600'>

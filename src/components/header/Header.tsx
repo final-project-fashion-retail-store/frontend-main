@@ -126,7 +126,9 @@ const Header = () => {
 					</div>
 					{/* Logo */}
 					<span className='w-40 h-auto absolute left-1/2 transform -translate-x-1/2'>
-						<Logo />
+						<Link href='/'>
+							<Logo />
+						</Link>
 					</span>
 					<div className='flex items-center space-x-6'>
 						{/* Toggle theme */}

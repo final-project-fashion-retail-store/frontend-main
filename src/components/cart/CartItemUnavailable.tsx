@@ -1,16 +1,48 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Overlay from '@/components/ui/overlay';
+import useCartStore from '@/stores/cartStore';
 import { CartItem } from '@/types';
 import { motion } from 'framer-motion';
-import { Heart, Trash2, X } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 type Props = {
 	item: CartItem;
 };
 
 const CartItemUnavailable = ({ item }: Props) => {
+	const [
+		isRemovingProductFromCart,
+		removeProductFromCart,
+		getTotalCartProducts,
+	] = useCartStore(
+		useShallow((state) => [
+			state.isRemovingProductFromCart,
+			state.removeProductFromCart,
+			state.getTotalCartProducts,
+		])
+	);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const handleClickRemoveFromCart = async () => {
+		console.log('alo');
+		if (isRemovingProductFromCart || isLoading) return;
+
+		setIsLoading(true);
+		const result = await removeProductFromCart(item.product._id, item.variantId);
+		if (result.success) {
+			await getTotalCartProducts();
+			console.log('Product removed from cart successfully');
+		} else {
+			console.error(result.message);
+		}
+		setIsLoading(false);
+	};
+
 	return (
 		<motion.div
 			key={item.product._id}
@@ -19,11 +51,12 @@ const CartItemUnavailable = ({ item }: Props) => {
 			exit={{ opacity: 0, x: -100 }}
 			transition={{ duration: 0.3 }}
 		>
-			<Card className='overflow-hidden border-orange-200 bg-gray-50/50'>
+			{isRemovingProductFromCart && isLoading && <Overlay loading />}
+			<Card className='overflow-hidden border-orange-200 bg-muted-foreground/50'>
 				<CardContent className='p-6'>
 					<div className='flex flex-col md:flex-row gap-6'>
 						{/* Product Image */}
-						<div className='relative w-full md:w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0'>
+						<div className='relative w-full md:w-32 h-32 bg-muted-foreground/10 rounded-lg overflow-hidden flex-shrink-0'>
 							<Image
 								src={item.product.images[0].url}
 								alt={item.product.name}
@@ -51,7 +84,7 @@ const CartItemUnavailable = ({ item }: Props) => {
 									>
 										{item.product.brand.name}
 									</Badge>
-									<h3 className='text-lg font-semibold text-gray-600'>
+									<h3 className='text-lg font-semibold text-muted-foreground'>
 										{item.product.name}
 									</h3>
 									<div className='flex items-center gap-2 mt-2'>
@@ -61,42 +94,28 @@ const CartItemUnavailable = ({ item }: Props) => {
 										>
 											Out of Stock
 										</Badge>
-										{/* {item.estimatedRestock && (
-											<div className='flex items-center gap-1 text-sm text-gray-600'>
-												<Clock className='w-3 h-3' />
-												<span>Back {item.estimatedRestock}</span>
-											</div>
-										)} */}
 									</div>
 								</div>
-								<Button
-									variant='ghost'
-									size='icon'
-									// onClick={() => removeUnavailableItem(item.id)}
-									className='text-gray-400 hover:text-red-500'
-								>
-									<X className='w-4 h-4' />
-								</Button>
 							</div>
 
 							{/* Price */}
 							<div className='flex items-center gap-3 opacity-60'>
-								<span className='text-xl font-bold text-gray-600'>
+								<span className='text-xl font-bold text-muted-foreground'>
 									${item.product.salePrice || item.product.price}
 								</span>
 								{item.product.salePrice && (
-									<span className='text-lg text-gray-500 line-through'>
+									<span className='text-lg text-muted-foreground line-through'>
 										${item.product.price}
 									</span>
 								)}
 							</div>
 
 							{/* Selected Options */}
-							<div className='flex items-center gap-6 text-sm text-gray-600'>
+							<div className='flex items-center gap-6 text-sm text-muted-foreground'>
 								<div className='flex items-center gap-2'>
 									<span>Color:</span>
 									<div
-										className='w-4 h-4 rounded-full border border-gray-300'
+										className='w-4 h-4 rounded-full border'
 										style={{
 											backgroundColor: item.product.variants
 												.find((v) => v._id === item.variantId)
@@ -124,7 +143,7 @@ const CartItemUnavailable = ({ item }: Props) => {
 
 							{/* Actions */}
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t'>
-								<Button
+								{/* <Button
 									variant='outline'
 									size='sm'
 									// onClick={() => moveToWishlist(item.id)}
@@ -132,27 +151,16 @@ const CartItemUnavailable = ({ item }: Props) => {
 								>
 									<Heart className='w-3 h-3 md:w-4 md:h-4' />
 									Save for Later
-								</Button>
+								</Button> */}
 								<Button
 									variant='outline'
 									size='sm'
-									// onClick={() => removeUnavailableItem(item.id)}
+									onClick={handleClickRemoveFromCart}
 									className='flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-xs md:text-sm'
 								>
 									<Trash2 className='w-3 h-3 md:w-4 md:h-4' />
 									Remove
 								</Button>
-								{/* {item.estimatedRestock && item.unavailableReason !== 'Discontinued' && (
-									<Button
-										variant='outline'
-										size='sm'
-										className='flex items-center justify-center gap-2 bg-transparent text-xs md:text-sm'
-									>
-										<Clock className='w-3 h-3 md:w-4 md:h-4' />
-										<span className='hidden sm:inline'>Notify When Available</span>
-										<span className='sm:hidden'>Notify</span>
-									</Button>
-								)} */}
 							</div>
 						</div>
 					</div>

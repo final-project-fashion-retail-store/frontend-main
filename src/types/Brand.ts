@@ -4,4 +4,5 @@ export type Brand = {
 	logo: {
 		url: string;
 	};
+	slug: string;
 };

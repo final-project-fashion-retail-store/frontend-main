@@ -1,6 +1,7 @@
 import { Brand } from '@/types';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 type Props = {
 	brand: Brand;
@@ -14,6 +15,11 @@ const scaleIn = {
 };
 
 const BrandCard = ({ brand, index }: Props) => {
+	const router = useRouter();
+
+	const handleClickBrand = () => {
+		router.push(`/brand/${brand.slug}`);
+	};
 	return (
 		<motion.div
 			key={brand.name}
@@ -24,9 +30,10 @@ const BrandCard = ({ brand, index }: Props) => {
 				transition: { duration: 0.3 },
 			}}
 			className='cursor-pointer'
+			onClick={handleClickBrand}
 		>
 			<motion.div
-				className='bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 flex items-center justify-center w-48 h-32 relative overflow-hidden group'
+				className='dark:bg-accent rounded-2xl p-8 shadow-lg border hover:shadow-2xl transition-all duration-300 flex items-center justify-center w-48 h-32 relative overflow-hidden group'
 				animate={{
 					y: [-3, 3],
 				}}
@@ -55,23 +62,13 @@ const BrandCard = ({ brand, index }: Props) => {
 						alt={brand.name}
 						width={120}
 						height={60}
-						className='max-w-[140px] max-h-[50px] object-contain filter brightness-0 opacity-60 group-hover:brightness-100 group-hover:opacity-100 transition-all duration-300'
+						className='max-w-[140px] max-h-[50px] object-contain filter brightness-0 opacity-60 group-hover:opacity-100 transition-all duration-300'
 						style={{
 							width: 'auto',
 							height: 'auto',
 						}}
 					/>
 				</div>
-
-				{/* Brand name tooltip on hover */}
-				<motion.div
-					className='absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 pointer-events-none'
-					initial={{ y: 10 }}
-					whileHover={{ y: 0 }}
-					transition={{ duration: 0.2 }}
-				>
-					{brand.name}
-				</motion.div>
 			</motion.div>
 		</motion.div>
 	);

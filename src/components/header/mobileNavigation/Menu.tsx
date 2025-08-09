@@ -42,7 +42,7 @@ type NavigationItems = {
 const userMenuItems = [
 	{ name: 'Profile', href: '/profile', icon: User },
 	{ name: 'Wishlist', href: '/wishlist', icon: Heart },
-	{ name: 'Orders', href: '/orders', icon: ShoppingCart },
+	{ name: 'Orders', href: '/order', icon: ShoppingCart },
 	{ name: 'Logout', href: '/logout', icon: LogOut },
 ];
 

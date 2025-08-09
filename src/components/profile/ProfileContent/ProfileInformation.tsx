@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, LoaderCircle, User } from 'lucide-react';
+import { LoaderCircle, User } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import useAuthStore from '@/stores/authStore';
 import { useEffect, useMemo, useRef } from 'react';
@@ -166,7 +166,7 @@ const ProfileInformation = () => {
 				/>
 				<div className='flex items-center gap-6'>
 					<div className='relative'>
-						<div className='size-[120px] rounded-full overflow-hidden border-4 border-muted-foreground/20'>
+						<div className='size-[80px] lg:size-[120px] rounded-full overflow-hidden border-4 border-muted-foreground/20'>
 							<ImageCustom
 								src={authUser.avatar.url}
 								alt='Avatar'
@@ -179,13 +179,13 @@ const ProfileInformation = () => {
 								} size-full`}
 							/>
 						</div>
-						<Button
+						{/* <Button
 							size='icon'
 							className='absolute bottom-0 right-0 rounded-full p-0 bg-purple-600 hover:bg-purple-700'
 							onClick={() => inputFileRef.current?.click()}
 						>
 							<Camera className='size-4' />
-						</Button>
+						</Button> */}
 					</div>
 					<div>
 						<h3 className='font-semibold text-lg mb-1'>Profile Photo</h3>

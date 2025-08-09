@@ -258,7 +258,7 @@ const MobileFilter = ({
 				</div>
 
 				{/* Action Buttons */}
-				<div className='mt-6 pt-6 border-t sticky bottom-5 bg-white'>
+				<div className='mt-6 pt-6 sticky bottom-5'>
 					<div className='flex gap-3'>
 						<Button
 							onClick={() => setIsMobileFiltersOpen(false)}
@@ -269,7 +269,7 @@ const MobileFilter = ({
 						<Button
 							variant='outline'
 							onClick={clearAllFilters}
-							className='flex-1 bg-transparent'
+							className='flex-1'
 						>
 							Clear All
 						</Button>

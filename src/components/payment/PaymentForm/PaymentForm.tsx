@@ -139,8 +139,9 @@ const PaymentForm = ({
 				setShowCartEmpty(false);
 
 				setTimeout(async () => {
+					console.log('Call total product');
 					await getTotalCartProducts();
-				}, 1000);
+				}, 3000);
 			}
 		} catch {
 			toast.error('Payment processing error');

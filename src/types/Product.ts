@@ -40,4 +40,5 @@ export type Product = {
 	metaTitle: string;
 	metaDescription: string;
 	slug: string;
+	active: boolean;
 };

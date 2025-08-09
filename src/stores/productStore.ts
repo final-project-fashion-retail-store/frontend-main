@@ -255,10 +255,13 @@ const useProductStore = create<Stores>((set, get) => ({
 		try {
 			set({ isGettingProducts: true });
 			const res = await getProductsWishlist(link, limit, params);
-
 			set({
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				wishlistProducts: res.data.wishlistItems.map((item: any) => item.product),
+				wishlistProducts: res.data.wishlistItems
+					.map(
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(item: any) => item.product
+					)
+					.filter(Boolean),
 				pagination: res.data.pagination,
 			});
 		} catch (err) {

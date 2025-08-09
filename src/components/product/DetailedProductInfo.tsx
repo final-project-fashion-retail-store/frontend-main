@@ -82,11 +82,17 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 	const getAvailableSizes = () => {
 		return selectedProduct?.variants
 			.filter((variant) => variant.color === selectedColor)
-			.map((variant) => ({
-				size: variant.size,
-				inventory: variant.inventory,
-				inStock: variant.inventory > 0,
-			}));
+			.map((variant) => {
+				const availableInventory =
+					variant.inventory - (variant.reservedInventory || 0);
+				const inStock = availableInventory > 0 && selectedProduct?.inStock;
+
+				return {
+					size: variant.size,
+					inventory: availableInventory,
+					inStock: inStock,
+				};
+			});
 	};
 
 	// Get selected variant
@@ -99,7 +105,10 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 	const availableColors = getAvailableColors();
 	const availableSizes = getAvailableSizes();
 	const selectedVariant = getSelectedVariant();
-	const isInStock = selectedVariant ? selectedVariant.inventory > 0 : false;
+	const isInStock = selectedVariant
+		? selectedVariant.inventory - (selectedVariant.reservedInventory || 0) > 0 &&
+		  selectedProduct?.inStock
+		: false;
 	const discount = selectedProduct?.salePrice
 		? Math.round(
 				((selectedProduct.price - selectedProduct.salePrice) /
@@ -146,7 +155,7 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 							alt={selectedProduct.brand.name || 'Brand Logo'}
 							width={32}
 							height={32}
-							className='object-contain w-8 h-8'
+							className='object-contain w-8 h-8 dark:bg-muted-foreground rounded-lg'
 						/>
 					)}
 					<span className='text-purple-600 font-semibold'>
@@ -212,7 +221,7 @@ const DetailedProductInfo = ({ selectedProduct, getCurrentImages }: Props) => {
 					)}
 				</div>
 				<p className='text-sm text-muted-foreground'>
-					Tax included. Shipping calculated at checkout.
+					Tax, Shipping calculated at checkout.
 				</p>
 			</div>
 

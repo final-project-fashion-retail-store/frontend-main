@@ -73,7 +73,7 @@ const EditItem = ({ item, getColor, getSize, setIsOpen }: Props) => {
 			<div className='space-y-6 py-4'>
 				{/* Color Selection */}
 				<div>
-					<label className='text-sm font-medium text-gray-700 mb-3 block'>
+					<label className='text-sm font-medium text-muted-foreground mb-3 block'>
 						Color: {getColor(item)}
 					</label>
 					<div className='grid grid-cols-4 gap-3'>
@@ -86,7 +86,7 @@ const EditItem = ({ item, getColor, getSize, setIsOpen }: Props) => {
 								}`}
 							>
 								<div
-									className='w-8 h-8 rounded-full border border-gray-300 mb-1'
+									className='w-8 h-8 rounded-full border border-muted-foreground/30 mb-1'
 									style={{ backgroundColor: color.toLowerCase() }}
 								/>
 								<span className='text-xs font-medium'>{color}</span>
@@ -97,7 +97,7 @@ const EditItem = ({ item, getColor, getSize, setIsOpen }: Props) => {
 
 				{/* Size Selection */}
 				<div>
-					<label className='text-sm font-medium text-gray-700 mb-3 block'>
+					<label className='text-sm font-medium text-muted-foreground mb-3 block'>
 						Size: {selectedSize}
 					</label>
 					<div className='grid grid-cols-3 gap-2'>
@@ -118,24 +118,24 @@ const EditItem = ({ item, getColor, getSize, setIsOpen }: Props) => {
 
 				{/* Quantity Selection */}
 				<div>
-					<label className='text-sm font-medium text-gray-700 mb-3 block'>
+					<label className='text-sm font-medium text-muted-foreground mb-3 block'>
 						Quantity: {quantity}
 					</label>
 					<div className='flex items-center justify-center gap-4'>
 						<button
 							onClick={() => setQuantity(Math.max(1, quantity - 1))}
 							disabled={quantity <= 1}
-							className='w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
+							className='w-12 h-12 border rounded-lg hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
 						>
 							<Minus className='w-5 h-5' />
 						</button>
-						<div className='w-16 h-12 border border-gray-300 rounded-lg flex items-center justify-center'>
+						<div className='w-16 h-12 border rounded-lg flex items-center justify-center'>
 							<span className='text-lg font-semibold'>{quantity}</span>
 						</div>
 						<button
 							onClick={() => setQuantity(Math.min(item.maxQuantity, quantity + 1))}
 							disabled={quantity >= (selectedVariant?.inventory || 0)}
-							className='w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
+							className='w-12 h-12 border rounded-lg hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
 						>
 							<Plus className='w-5 h-5' />
 						</button>
@@ -148,9 +148,9 @@ const EditItem = ({ item, getColor, getSize, setIsOpen }: Props) => {
 				</div>
 
 				{/* Price Preview */}
-				<div className='bg-gray-50 rounded-lg p-4'>
+				<div className='bg-muted-foreground/10 rounded-lg p-4'>
 					<div className='flex justify-between items-center'>
-						<span className='text-sm text-gray-600'>Total Price:</span>
+						<span className='text-sm text-muted-foreground'>Total Price:</span>
 						<div className='text-right'>
 							<div className='text-lg font-bold text-purple-600'>
 								${((selectedVariant?.salePrice || 0) * quantity).toFixed(2)}

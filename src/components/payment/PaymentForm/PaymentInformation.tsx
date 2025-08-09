@@ -4,29 +4,29 @@ import { AlertCircle, CreditCard, Shield } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTheme } from 'next-themes';
 
 type Props = {
 	errorMessage?: string;
 };
 
-const cardElementOptions = {
-	style: {
-		base: {
-			fontSize: '16px',
-			color: '#424770',
-			'::placeholder': {
-				color: '#aab7c4',
-			},
-			// padding: '12px',
-		},
-		invalid: {
-			color: '#9e2146',
-		},
-	},
-	hidePostalCode: true,
-};
-
 const PaymentInformation = ({ errorMessage }: Props) => {
+	const { theme } = useTheme();
+	const cardElementOptions = {
+		style: {
+			base: {
+				fontSize: '16px',
+				color: theme === 'dark' ? '#ffffff' : '#424770',
+				'::placeholder': {
+					color: theme === 'dark' ? '#9ca3af' : '#aab7c4',
+				},
+			},
+			invalid: {
+				color: '#ef4444',
+			},
+		},
+		hidePostalCode: true,
+	};
 	return (
 		<Card>
 			<CardHeader>
@@ -38,7 +38,7 @@ const PaymentInformation = ({ errorMessage }: Props) => {
 			<CardContent className='space-y-4'>
 				<div>
 					<Label htmlFor='card-element'>Card Details</Label>
-					<div className='mt-2 p-3 border border-gray-300 rounded-lg bg-white'>
+					<div className='mt-2 p-3 border rounded-lg'>
 						<CardElement options={cardElementOptions} />
 					</div>
 				</div>
@@ -50,7 +50,7 @@ const PaymentInformation = ({ errorMessage }: Props) => {
 					</Alert>
 				)}
 
-				<div className='flex items-center gap-2 text-sm text-gray-600'>
+				<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 					<Shield className='w-4 h-4' />
 					<span>Your payment information is encrypted and secure</span>
 				</div>

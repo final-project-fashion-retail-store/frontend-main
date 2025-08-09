@@ -11,7 +11,10 @@ const classifyCartItems = (cartItems: CartItem[]) => {
 		if (variant) {
 			// Check if inventory is sufficient for the requested quantity
 			const availableInventory = variant.inventory - variant.reservedInventory;
-			const isAvailable = availableInventory >= item.quantity;
+			const isAvailable =
+				availableInventory >= item.quantity &&
+				item.product.inStock &&
+				item.product.active;
 
 			if (isAvailable) {
 				available.push({

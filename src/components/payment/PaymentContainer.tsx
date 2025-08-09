@@ -44,12 +44,12 @@ const PaymentContainer = () => {
 		return (
 			<div className='text-center py-16'>
 				<ShoppingCart className='w-16 h-16 text-gray-300 mx-auto mb-4' />
-				<h2 className='text-2xl font-semibold text-gray-900 mb-2'>
+				<h2 className='text-2xl font-semibold text-foreground mb-2'>
 					Your cart is empty
 				</h2>
-				<p className='text-gray-600 mb-6'>Add some items to get started</p>
+				<p className='text-muted-foreground mb-6'>Add some items to get started</p>
 				<Button className='bg-purple-600 hover:bg-purple-700 text-white'>
-					<Link href={'/'}>Continue Shopping</Link>
+					<Link href='/'>Continue Shopping</Link>
 				</Button>
 			</div>
 		);
