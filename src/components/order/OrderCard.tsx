@@ -243,11 +243,11 @@ const OrderCard = ({ order, isExpanded, onToggleExpansion }: Props) => {
 							Shipping Address
 						</h4>
 						<div className='text-sm text-muted-foreground space-y-1'>
-							<p className='font-medium'>{order.shippingAddress.fullName}</p>
-							<p>{order.shippingAddress.phoneNumber}</p>
+							<p className='font-medium'>{order?.shippingAddress?.fullName}</p>
+							<p>{order?.shippingAddress?.phoneNumber}</p>
 							<p>
-								{order.shippingAddress.addressLine}, {order.shippingAddress.ward},{' '}
-								{order.shippingAddress.district}, {order.shippingAddress.city}
+								{order?.shippingAddress?.addressLine}, {order?.shippingAddress?.ward},{' '}
+								{order?.shippingAddress?.district}, {order?.shippingAddress?.city}
 							</p>
 						</div>
 					</div>
