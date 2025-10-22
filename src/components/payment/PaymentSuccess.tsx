@@ -18,10 +18,14 @@ const PaymentSuccess = () => {
 						Your order has been confirmed and will be processed soon.
 					</p>
 					<div className='space-y-3'>
-						<Button className='w-full bg-purple-600 hover:bg-purple-700'>
-							View Order Details
+						<Button
+							asChild
+							className='w-full bg-purple-600 hover:bg-purple-700'
+						>
+							<Link href='/order'>View Order Details</Link>
 						</Button>
 						<Button
+							asChild
 							variant='outline'
 							className='w-full bg-transparent'
 						>

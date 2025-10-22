@@ -1,6 +1,6 @@
 const ProgressSteps = () => {
 	return (
-		<div className='flex items-center justify-center space-x-4 mb-8'>
+		<div className='flex items-center justify-center max-sm:hidden space-x-4 mb-8'>
 			<div className='flex items-center'>
 				<div className='w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-medium'>
 					1

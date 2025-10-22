@@ -151,7 +151,7 @@ function Pagination({ className, paginationPage, param, slug }: Props) {
 					onKeyUp={handleKeyUp}
 				/>
 				<span>/</span>
-				<span>{'10'}</span>
+				<span>{pagination?.totalPages}</span>
 			</div>
 
 			{/* Next Button */}
