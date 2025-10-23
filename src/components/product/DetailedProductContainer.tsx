@@ -69,10 +69,6 @@ function ProductPage({ slug }: Props) {
 		{ label: selectedProduct?.name || '', href: `/product/${slug}` },
 	];
 
-	// useEffect(() => {
-	// 	console.log(currentImages);
-	// }, [currentImages]);
-
 	if (isGettingProducts) {
 		return (
 			<div className='flex items-center justify-center h-screen'>

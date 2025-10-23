@@ -29,7 +29,7 @@ const Category = () => {
 	return (
 		<section
 			ref={categoriesRef}
-			className='py-20'
+			className='py-20 max-sm:hidden'
 		>
 			<div>
 				<motion.div
