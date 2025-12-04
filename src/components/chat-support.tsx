@@ -41,7 +41,7 @@ export default function ChatSupport() {
 	useEffect(() => {
 		if (!authUser) return;
 
-		getMessages('683e81d225efd3f98007781c');
+		getMessages('683e81d225efd3f98007781c'); //temporary hardcoded support staff id
 		subscribeToMessages();
 		return () => {
 			unsubscribeToMessages();
